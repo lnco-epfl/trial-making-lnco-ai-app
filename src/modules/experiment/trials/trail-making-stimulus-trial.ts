@@ -7,6 +7,12 @@ import {
   ExperimentState,
   TrailMakingStage,
 } from '../jspsych/experiment-state-class';
+import {
+  PRACTICE1_FIELD,
+  PRACTICE2_FIELD,
+  TASK1_FIELD,
+  TASK2_FIELD,
+} from '../utils/constants';
 
 export type TrailMakingParametersType = {
   stage: TrailMakingStage;
@@ -22,6 +28,51 @@ export type TrailMakingDataType = {
   errorsNonSelfCorrected: number;
   clickSequence: ClickData[];
   completed: boolean;
+};
+
+/**
+ * Field definitions mapping for each stage
+ */
+const FIELD_DEFINITIONS = {
+  practice1: PRACTICE1_FIELD,
+  practice2: PRACTICE2_FIELD,
+  task1: TASK1_FIELD,
+  task2: TASK2_FIELD,
+} as const;
+
+/**
+ * Calculate the largest field height across all stages
+ * This will be used to scale all fields proportionally
+ */
+const MAX_FIELD_HEIGHT = Math.max(
+  PRACTICE1_FIELD.size[1],
+  PRACTICE2_FIELD.size[1],
+  TASK1_FIELD.size[1],
+  TASK2_FIELD.size[1],
+);
+
+/**
+ * Target height in vh for the largest field
+ */
+const TARGET_MAX_HEIGHT_VH = 80;
+
+/**
+ * Calculate scaled dimensions for a given stage
+ * The largest field will be TARGET_MAX_HEIGHT_VH, others scale proportionally
+ */
+const getFieldDimensions = (
+  stage: TrailMakingStage,
+): { width: number; height: number } => {
+  const fieldDef = FIELD_DEFINITIONS[stage];
+  const [fieldWidth, fieldHeight] = fieldDef.size;
+
+  // Scale factor: vh per field unit
+  const scaleFactorVh = TARGET_MAX_HEIGHT_VH / MAX_FIELD_HEIGHT;
+
+  return {
+    width: fieldWidth * scaleFactorVh,
+    height: fieldHeight * scaleFactorVh,
+  };
 };
 
 const info = {
@@ -325,13 +376,16 @@ class TrailMakingStimulusPlugin {
     const element = displayElement;
     element.className = `trail-making-trial font-${fontSize}`;
 
+    // Get field dimensions for this stage
+    const fieldDimensions = getFieldDimensions(stage);
+
     // Create container
     const container = document.createElement('div');
     container.className = 'trail-making-container';
     container.style.cssText = `
       position: relative;
-      width: 64vh;
-      height: 90vh;
+      width: ${fieldDimensions.width}vh;
+      height: ${fieldDimensions.height}vh;
       margin: 0 auto;
       border: 2px solid #333;
       background-color: #f9f9f9;

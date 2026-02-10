@@ -45,7 +45,7 @@ export const TIMING = {
 
 export const PRACTICE1_FIELD: FieldDefinition = {
   type: 'practice1',
-  size: [700, 400],
+  size: [2100, 1200],
   targets: [
     {
       label: '1',
@@ -92,7 +92,7 @@ export const PRACTICE1_FIELD: FieldDefinition = {
 
 export const PRACTICE2_FIELD: FieldDefinition = {
   type: 'practice2',
-  size: [700, 400],
+  size: [2100, 1200],
   targets: [
     {
       label: '1',
