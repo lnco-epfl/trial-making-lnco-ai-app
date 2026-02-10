@@ -7,22 +7,22 @@ import { isEqual } from 'lodash';
 
 import {
   BreakSettingsType,
-  FlankerSettingsType,
   GeneralSettingsType,
   NextStepSettings,
   PhotoDiodeSettings,
+  TrailMakingSettingsType,
   useSettings,
 } from '../context/SettingsContext';
 import BreakSettingsView from './BreakSettingsView';
-import FlankerSettingsView from './FlankerSettingsView';
 import GeneralSettingsView from './GeneralSettingsView';
 import NextStepSettingsView from './NextStepSettings';
 import PhotoDiodeSettingsView from './PhotoDiodeSettingsView';
+import TrailMakingSettingsView from './TrailMakingSettingsView';
 
 const SettingsView: FC = () => {
   const {
     generalSettings: generalSettingsSaved,
-    flankerSettings: flankerSettingsSaved,
+    trailMakingSettings: trailMakingSettingsSaved,
     breakSettings: breakSettingsSaved,
     photoDiodeSettings: photoDiodeSettingsSaved,
     nextStepSettings: nextStepSettingsSaved,
@@ -31,8 +31,8 @@ const SettingsView: FC = () => {
 
   const [generalSettings, updateGeneralSettings] =
     useState<GeneralSettingsType>(generalSettingsSaved);
-  const [flankerSettings, updateFlankerSettings] =
-    useState<FlankerSettingsType>(flankerSettingsSaved);
+  const [trailMakingSettings, updateTrailMakingSettings] =
+    useState<TrailMakingSettingsType>(trailMakingSettingsSaved);
   const [breakSettings, updateBreakSettings] =
     useState<BreakSettingsType>(breakSettingsSaved);
   const [photoDiodeSettings, updatePhotoDiodeSettings] =
@@ -43,7 +43,7 @@ const SettingsView: FC = () => {
 
   const saveAllSettings = (): void => {
     saveSettings('generalSettings', generalSettings);
-    saveSettings('flankerSettings', flankerSettings);
+    saveSettings('trailMakingSettings', trailMakingSettings);
     saveSettings('breakSettings', breakSettings);
     saveSettings('photoDiodeSettings', photoDiodeSettings);
     saveSettings('nextStepSettings', nextStepSettings);
@@ -52,7 +52,7 @@ const SettingsView: FC = () => {
   const disableSave = useMemo(() => {
     if (
       isEqual(generalSettingsSaved, generalSettings) &&
-      isEqual(flankerSettingsSaved, flankerSettings) &&
+      isEqual(trailMakingSettingsSaved, trailMakingSettings) &&
       isEqual(breakSettingsSaved, breakSettings) &&
       isEqual(photoDiodeSettingsSaved, photoDiodeSettings) &&
       isEqual(nextStepSettingsSaved, nextStepSettings)
@@ -63,8 +63,8 @@ const SettingsView: FC = () => {
   }, [
     generalSettingsSaved,
     generalSettings,
-    flankerSettingsSaved,
-    flankerSettings,
+    trailMakingSettingsSaved,
+    trailMakingSettings,
     breakSettingsSaved,
     breakSettings,
     photoDiodeSettingsSaved,
@@ -80,9 +80,9 @@ const SettingsView: FC = () => {
         generalSettings={generalSettings}
         onChange={updateGeneralSettings}
       />
-      <FlankerSettingsView
-        flankerSettings={flankerSettings}
-        onChange={updateFlankerSettings}
+      <TrailMakingSettingsView
+        trailMakingSettings={trailMakingSettings}
+        onChange={updateTrailMakingSettings}
       />
       <BreakSettingsView
         breakSettings={breakSettings}

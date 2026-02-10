@@ -1,6 +1,6 @@
 /**
- * @title Eriksen Flanker Task
- * @description This experiment implements an Eriksen Flanker task with configurable settings.
+ * @title Trail Making Task
+ * @description This experiment implements a Trail Making Task with configurable stages.
  * @version 1.0.0
  *
  * @assets assets/
@@ -16,8 +16,8 @@ import { AllSettingsType, NextStepSettings } from '../context/SettingsContext';
 import { ExperimentState } from './jspsych/experiment-state-class';
 import './jspsych/i18n';
 import { buildIntroduction } from './parts/introduction';
-import { buildPractice } from './parts/practice';
-import { buildMainTask } from './parts/task-core';
+import { buildPractice1, buildPractice2 } from './parts/practice';
+import { buildTask1, buildTask2 } from './parts/task-core';
 import './styles/main.scss';
 import { Timeline, Trial } from './utils/types';
 import { resolveLink } from './utils/utils';
@@ -38,7 +38,7 @@ const getEndPage = ({
 
 /**
  * @function run
- * @description Main function to run the Flanker task experiment
+ * @description Main function to run the Trail Making Task experiment
  * @param {Object} config - Configuration object for the experiment
  */
 export async function run({
@@ -198,26 +198,45 @@ export async function run({
     },
   });
 
-  // Practice
-  if (!state.getGeneralSettings().skipPractice) {
+  // Practice 1 (numbers 1-8)
+  if (state.isStageEnabled('practice1')) {
     timeline.push({
-      timeline: buildPractice(state, updateDataWithSettings, jsPsych),
+      timeline: buildPractice1(state, updateDataWithSettings, jsPsych),
       on_timeline_start() {
-        if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.2;
+        if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.1;
       },
     });
   }
 
-  // Main task
-  timeline.push({
-    timeline: buildMainTask(state, updateDataWithSettings, jsPsych),
-    on_timeline_start() {
-      state.startMainTask();
-      if (jsPsych.progressBar) {
-        jsPsych.progressBar.progress = 0.5;
-      }
-    },
-  });
+  // Task 1 (numbers 1-25)
+  if (state.isStageEnabled('task1')) {
+    timeline.push({
+      timeline: buildTask1(state, updateDataWithSettings, jsPsych),
+      on_timeline_start() {
+        if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.3;
+      },
+    });
+  }
+
+  // Practice 2 (numbers + letters 1-D)
+  if (state.isStageEnabled('practice2')) {
+    timeline.push({
+      timeline: buildPractice2(state, updateDataWithSettings, jsPsych),
+      on_timeline_start() {
+        if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.6;
+      },
+    });
+  }
+
+  // Task 2 (numbers + letters 1-13)
+  if (state.isStageEnabled('task2')) {
+    timeline.push({
+      timeline: buildTask2(state, updateDataWithSettings, jsPsych),
+      on_timeline_start() {
+        if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.8;
+      },
+    });
+  }
 
   // End page
   if (state.getNextStepSettings().linkToNextPage) {

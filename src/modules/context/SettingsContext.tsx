@@ -9,16 +9,34 @@ export type GeneralSettingsType = {
   skipPractice: boolean;
 };
 
-export type FlankerSettingsType = {
-  numberOfTrials: number; // total number of trials in main task
-  numberOfPracticeTrials: number; // number of practice trials
-  congruentPercentage: number; // percentage of congruent trials (0-100)
-  incongruentPercentage: number; // percentage of incongruent trials (0-100)
-  neutralPercentage: number; // percentage of neutral trials (0-100)
-  displayDuration: number; // stimulus display duration in milliseconds
-  interTrialInterval: number; // time between trials in milliseconds
-  responseKey: 'arrows' | 'mouse' | 'both'; // how to respond
-  showFixationCross: boolean; // show + in center during inter-trial interval
+export type CirclePosition = {
+  x: number; // x coordinate (0-100 as percentage)
+  y: number; // y coordinate (0-100 as percentage)
+  label: string; // '1', '2', 'A', 'B', etc.
+};
+
+export type TrailMakingLayout = {
+  circles: CirclePosition[];
+  sequence: string[]; // correct order: ['1', '2', '3', ...] or ['1', 'A', '2', 'B', ...]
+};
+
+export type TrailMakingSettingsType = {
+  // Stage configurations
+  enablePractice1: boolean; // Practice with numbers 1-8
+  enableTask1: boolean; // Full task with numbers 1-25
+  enablePractice2: boolean; // Practice with numbers+letters 1-D
+  enableTask2: boolean; // Full task with numbers+letters 1-13
+
+  // Layout configurations (hardcoded layouts for each stage)
+  practice1Layout: TrailMakingLayout | null; // 1-8
+  task1Layout: TrailMakingLayout | null; // 1-25
+  practice2Layout: TrailMakingLayout | null; // 1,A,2,B,3,C,4,D
+  task2Layout: TrailMakingLayout | null; // 1,a,2,b...13
+
+  // Display settings
+  circleRadius: number; // radius of circles in pixels
+  showInstructions: boolean; // show detailed instructions
+  provideFeedback: boolean; // provide immediate feedback on practice
 };
 
 export type BreakSettingsType = {
@@ -47,7 +65,7 @@ export type NextStepSettings = {
 // mapping between Setting names and their data type
 export type AllSettingsType = {
   generalSettings: GeneralSettingsType;
-  flankerSettings: FlankerSettingsType;
+  trailMakingSettings: TrailMakingSettingsType;
   breakSettings: BreakSettingsType;
   photoDiodeSettings: PhotoDiodeSettings;
   nextStepSettings: NextStepSettings;
@@ -60,16 +78,18 @@ const defaultSettingsValues: AllSettingsType = {
     skipInstructions: false,
     skipPractice: false,
   },
-  flankerSettings: {
-    numberOfTrials: 60,
-    numberOfPracticeTrials: 10,
-    congruentPercentage: 33,
-    incongruentPercentage: 33,
-    neutralPercentage: 34,
-    displayDuration: 2000,
-    interTrialInterval: 2000,
-    responseKey: 'arrows',
-    showFixationCross: true,
+  trailMakingSettings: {
+    enablePractice1: true,
+    enableTask1: true,
+    enablePractice2: true,
+    enableTask2: true,
+    practice1Layout: null, // Will be set by admin
+    task1Layout: null,
+    practice2Layout: null,
+    task2Layout: null,
+    circleRadius: 18,
+    showInstructions: true,
+    provideFeedback: true,
   },
   breakSettings: {
     enableBreaks: false,
@@ -91,7 +111,7 @@ const defaultSettingsValues: AllSettingsType = {
 // list of the settings names
 const ALL_SETTING_NAMES = [
   'generalSettings',
-  'flankerSettings',
+  'trailMakingSettings',
   'breakSettings',
   'photoDiodeSettings',
   'nextStepSettings',
