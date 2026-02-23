@@ -1,112 +1,137 @@
 import {
   AllSettingsType,
   BreakSettingsType,
-  FlankerSettingsType,
   GeneralSettingsType,
   NextStepSettings,
   PhotoDiodeSettings,
+  TrailMakingLayout,
+  TrailMakingSettingsType,
 } from '@/modules/context/SettingsContext';
-
-import { leftArrowSVG, neutralSVG, rightArrowSVG } from '../utils/constants';
+import {
+  PRACTICE1_FIELD,
+  PRACTICE2_FIELD,
+  TASK1_FIELD,
+  TASK2_FIELD,
+} from '@/modules/experiment/utils/constants';
 
 /**
- * Trial condition types for Flanker task
+ * Trail Making Task stages
  */
-export type FlankerCondition = 'congruent' | 'incongruent' | 'neutral';
+export type TrailMakingStage =
+  | 'practice1' // Numbers 1-8
+  | 'task1' // Numbers 1-25
+  | 'practice2' // Numbers+Letters 1-D
+  | 'task2'; // Numbers+Letters 1-13
 
 /**
- * Flanker trial definition
+ * Trail Making trial definition
  */
-export interface FlankerTrial {
-  condition: FlankerCondition;
-  correctResponse: 'left' | 'right'; // direction of center arrow
-  stimulus: string; // HTML stimulus
+export interface TrailMakingTrial {
+  stage: TrailMakingStage;
+  layout: TrailMakingLayout;
+  isPractice: boolean;
 }
 
 /**
- * Creates a single Flanker trial with stimulus HTML
+ * Click data for tracking user interactions
  */
-function createFlankerTrial(
-  condition: FlankerCondition,
-  centerDirection: 'left' | 'right',
-): FlankerTrial {
-  const leftArrow = leftArrowSVG;
-  const rightArrow = rightArrowSVG;
-  const neutralSymbol = neutralSVG;
-  let stimulus = '';
-  let flankerSymbol = '';
+export interface ClickData {
+  label: string; // which circle was clicked
+  timestamp: number; // when it was clicked
+  isCorrect: boolean; // was it the correct next click?
+  wasError: boolean; // was this fixing a previous error (self-correction)?
+}
 
-  if (condition === 'congruent') {
-    flankerSymbol = centerDirection === 'left' ? leftArrow : rightArrow;
-    stimulus = `${flankerSymbol} ${flankerSymbol} ${
-      centerDirection === 'left' ? leftArrow : rightArrow
-    } ${flankerSymbol} ${flankerSymbol}`;
-  } else if (condition === 'incongruent') {
-    flankerSymbol = centerDirection === 'left' ? rightArrow : leftArrow;
-    stimulus = `${flankerSymbol} ${flankerSymbol} ${
-      centerDirection === 'left' ? leftArrow : rightArrow
-    } ${flankerSymbol} ${flankerSymbol}`;
-  } else {
-    // neutral
-    stimulus = `${neutralSymbol} ${neutralSymbol} ${
-      centerDirection === 'left' ? leftArrow : rightArrow
-    } ${neutralSymbol} ${neutralSymbol}`;
+/**
+ * Trial result data
+ */
+export interface TrailMakingResult {
+  stage: TrailMakingStage;
+  timeTaken: number; // seconds
+  errorsSelfCorrected: number;
+  errorsNonSelfCorrected: number;
+  clickSequence: ClickData[];
+  completed: boolean;
+}
+
+/**
+ * Default layouts for each stage
+ */
+function getDefaultLayout(stage: TrailMakingStage): TrailMakingLayout {
+  switch (stage) {
+    case 'practice1':
+      return {
+        circles: PRACTICE1_FIELD.targets.map((target) => ({
+          x: target.x,
+          y: target.y,
+          label: target.label,
+        })),
+        sequence: ['1', '2', '3', '4', '5', '6', '7', '8'],
+      };
+    case 'task1':
+      return {
+        circles: TASK1_FIELD.targets.map((target) => ({
+          x: target.x,
+          y: target.y,
+          label: target.label,
+        })),
+        sequence: Array.from({ length: 25 }, (_, i) => `${i + 1}`),
+      };
+    case 'practice2':
+      return {
+        circles: PRACTICE2_FIELD.targets.map((target) => ({
+          x: target.x,
+          y: target.y,
+          label: target.label,
+        })),
+        sequence: ['1', 'A', '2', 'B', '3', 'C', '4', 'D'],
+      };
+    case 'task2':
+      return {
+        circles: TASK2_FIELD.targets.map((target) => ({
+          x: target.x,
+          y: target.y,
+          label: target.label,
+        })),
+        sequence: [
+          '1',
+          'A',
+          '2',
+          'B',
+          '3',
+          'C',
+          '4',
+          'D',
+          '5',
+          'E',
+          '6',
+          'F',
+          '7',
+          'G',
+          '8',
+          'H',
+          '9',
+          'I',
+          '10',
+          'J',
+          '11',
+          'K',
+          '12',
+          'L',
+          '13',
+        ],
+      };
+    default:
+      throw new Error(`Unknown stage: ${stage}`);
   }
-
-  return {
-    condition,
-    correctResponse: centerDirection,
-    stimulus,
-  };
-}
-
-/**
- * Generates a balanced sequence of Flanker trials
- * @param length - Total number of trials
- * @param congruentPercentage - Percentage of congruent trials
- * @param incongruentPercentage - Percentage of incongruent trials
- * @returns Array of FlankerTrial objects
- */
-export function generateFlankerSequence(
-  length: number,
-  congruentPercentage: number = 33,
-  incongruentPercentage: number = 33,
-): FlankerTrial[] {
-  const trials: FlankerTrial[] = [];
-
-  const congruentCount = Math.round((length * congruentPercentage) / 100);
-  const incongruentCount = Math.round((length * incongruentPercentage) / 100);
-  const neutralCount = length - congruentCount - incongruentCount;
-
-  const conditions: FlankerCondition[] = [
-    ...Array(congruentCount).fill('congruent'),
-    ...Array(incongruentCount).fill('incongruent'),
-    ...Array(neutralCount).fill('neutral'),
-  ];
-
-  // Shuffle array
-  conditions.sort(() => Math.random() - 0.5);
-
-  // Generate trials
-  conditions.forEach((condition) => {
-    const centerDirection = Math.random() < 0.5 ? 'left' : 'right';
-    trials.push(
-      createFlankerTrial(condition, centerDirection as 'left' | 'right'),
-    );
-  });
-
-  return trials;
 }
 
 interface State {
-  trials: FlankerTrial[];
-  currentTrialIndex: number;
-  practiceMode: boolean;
-  practiceResponses: Array<{
-    correct: boolean;
-    condition: FlankerCondition;
-    rt: number;
-  }>;
+  currentStage: TrailMakingStage | null;
+  currentClickIndex: number; // which circle in sequence should be clicked next
+  clickHistory: ClickData[];
+  startTime: number | null;
+  stageResults: TrailMakingResult[];
 }
 
 export class ExperimentState {
@@ -114,7 +139,7 @@ export class ExperimentState {
 
   private generalSettings: GeneralSettingsType;
 
-  private flankerSettings: FlankerSettingsType;
+  private trailMakingSettings: TrailMakingSettingsType;
 
   private breakSettings: BreakSettingsType;
 
@@ -124,17 +149,18 @@ export class ExperimentState {
 
   constructor(settings: AllSettingsType) {
     this.generalSettings = settings.generalSettings;
-    this.flankerSettings = settings.flankerSettings;
+    this.trailMakingSettings = settings.trailMakingSettings;
     this.breakSettings = settings.breakSettings;
     this.photoDiodeSettings = settings.photoDiodeSettings;
     this.nextStepSettings = settings.nextStepSettings;
 
-    // Initialize with empty state - will be set when experiment starts
+    // Initialize with empty state
     this.state = {
-      trials: [],
-      currentTrialIndex: 0,
-      practiceMode: false,
-      practiceResponses: [],
+      currentStage: null,
+      currentClickIndex: 0,
+      clickHistory: [],
+      startTime: null,
+      stageResults: [],
     };
   }
 
@@ -143,8 +169,8 @@ export class ExperimentState {
     return this.generalSettings;
   }
 
-  getFlankerSettings(): FlankerSettingsType {
-    return this.flankerSettings;
+  getTrailMakingSettings(): TrailMakingSettingsType {
+    return this.trailMakingSettings;
   }
 
   getBreakSettings(): BreakSettingsType {
@@ -162,128 +188,189 @@ export class ExperimentState {
   getAllSettings(): AllSettingsType {
     return {
       generalSettings: this.generalSettings,
-      flankerSettings: this.flankerSettings,
+      trailMakingSettings: this.trailMakingSettings,
       breakSettings: this.breakSettings,
       photoDiodeSettings: this.photoDiodeSettings,
       nextStepSettings: this.nextStepSettings,
     };
   }
 
-  // Sequence management
-  initializePracticeSequence(): void {
-    this.state.trials = generateFlankerSequence(
-      this.flankerSettings.numberOfPracticeTrials,
-      this.flankerSettings.congruentPercentage,
-      this.flankerSettings.incongruentPercentage,
-    );
-    this.state.currentTrialIndex = 0;
-    this.state.practiceMode = true;
-    this.state.practiceResponses = [];
+  // Stage management
+  startStage(stage: TrailMakingStage): void {
+    this.state.currentStage = stage;
+    this.state.currentClickIndex = 0;
+    this.state.clickHistory = [];
+    this.state.startTime = Date.now();
   }
 
-  initializeMainSequence(): void {
-    this.state.trials = generateFlankerSequence(
-      this.flankerSettings.numberOfTrials,
-      this.flankerSettings.congruentPercentage,
-      this.flankerSettings.incongruentPercentage,
-    );
-    this.state.currentTrialIndex = 0;
+  getCurrentStage(): TrailMakingStage | null {
+    return this.state.currentStage;
   }
 
-  startMainTask(): void {
-    this.state.practiceMode = false;
-    this.state.currentTrialIndex = 0;
-  }
-
-  getTrials(): FlankerTrial[] {
-    return this.state.trials;
-  }
-
-  getCurrentTrial(): FlankerTrial {
-    return this.state.trials[this.state.currentTrialIndex];
-  }
-
-  getCurrentTrialIndex(): number {
-    return this.state.currentTrialIndex;
-  }
-
-  incrementTrial(): void {
-    this.state.currentTrialIndex += 1;
-  }
-
-  // Practice management
-  isPracticeMode(): boolean {
-    return this.state.practiceMode;
-  }
-
-  recordPracticeResponse(
-    correct: boolean,
-    condition: FlankerCondition,
-    rt: number,
-  ): void {
-    if (!this.state.practiceMode) {
-      return;
+  getCurrentLayout(): TrailMakingLayout {
+    const stage = this.state.currentStage;
+    if (!stage) {
+      throw new Error('No current stage');
     }
 
-    this.state.practiceResponses.push({ correct, condition, rt });
-  }
-
-  getPracticeAccuracy(): number {
-    if (this.state.practiceResponses.length === 0) {
-      return 0;
+    // Try to get custom layout from settings, fall back to default
+    switch (stage) {
+      case 'practice1':
+        return (
+          this.trailMakingSettings.practice1Layout || getDefaultLayout(stage)
+        );
+      case 'task1':
+        return this.trailMakingSettings.task1Layout || getDefaultLayout(stage);
+      case 'practice2':
+        return (
+          this.trailMakingSettings.practice2Layout || getDefaultLayout(stage)
+        );
+      case 'task2':
+        return this.trailMakingSettings.task2Layout || getDefaultLayout(stage);
+      default:
+        throw new Error(`Unknown stage: ${stage}`);
     }
-    const correct = this.state.practiceResponses.filter(
-      (r) => r.correct,
-    ).length;
-    return (correct / this.state.practiceResponses.length) * 100;
   }
 
-  getPracticeCorrectCount(): number {
-    return this.state.practiceResponses.filter((r) => r.correct).length;
-  }
-
-  getPracticeTotalCount(): number {
-    return this.state.practiceResponses.length;
-  }
-
-  getPracticeAccuracyByCondition(condition: FlankerCondition): {
-    correct: number;
-    total: number;
-    accuracy: number;
+  // Click tracking
+  recordClick(
+    label: string,
+    layout: TrailMakingLayout,
+  ): {
+    isCorrect: boolean;
+    isComplete: boolean;
+    wasError: boolean;
   } {
-    const responses = this.state.practiceResponses.filter(
-      (r) => r.condition === condition,
-    );
-    if (responses.length === 0) {
-      return { correct: 0, total: 0, accuracy: 0 };
-    }
-    const correct = responses.filter((r) => r.correct).length;
-    return {
-      correct,
-      total: responses.length,
-      accuracy: (correct / responses.length) * 100,
+    const expectedLabel = layout.sequence[this.state.currentClickIndex];
+    const isCorrect = label === expectedLabel;
+
+    // Check if this is a self-correction (clicking the same incorrect circle again)
+    const lastClick =
+      this.state.clickHistory[this.state.clickHistory.length - 1];
+    const wasError =
+      lastClick && !lastClick.isCorrect && lastClick.label === label;
+
+    const clickData: ClickData = {
+      label,
+      timestamp: Date.now(),
+      isCorrect,
+      wasError,
     };
+
+    this.state.clickHistory.push(clickData);
+
+    if (isCorrect) {
+      this.state.currentClickIndex += 1;
+    }
+
+    const isComplete = this.state.currentClickIndex >= layout.sequence.length;
+
+    return { isCorrect, isComplete, wasError };
   }
 
-  // Break management
-  shouldShowBreak(): boolean {
-    return this.breakSettings.enableBreaks;
+  undoLastClick(): boolean {
+    const lastClick = this.state.clickHistory.pop();
+
+    if (!lastClick) {
+      return false;
+    }
+
+    if (lastClick.isCorrect) {
+      this.state.currentClickIndex = Math.max(
+        0,
+        this.state.currentClickIndex - 1,
+      );
+    }
+
+    return true;
   }
 
-  getBreakDuration(): number {
-    return this.breakSettings.breakDuration;
+  // Get current expected click
+  getExpectedClick(): string {
+    const layout = this.getCurrentLayout();
+    return layout.sequence[this.state.currentClickIndex];
   }
 
-  // Check if experiment is complete
-  isComplete(): boolean {
-    return this.state.currentTrialIndex >= this.state.trials.length;
+  getCurrentClickIndex(): number {
+    return this.state.currentClickIndex;
   }
 
-  getTotalTrials(): number {
-    return this.state.trials.length;
+  getClickHistory(): ClickData[] {
+    return this.state.clickHistory;
   }
 
-  getRemainingTrials(): number {
-    return this.state.trials.length - this.state.currentTrialIndex;
+  // Results calculation
+  completeStage(): TrailMakingResult {
+    const stage = this.state.currentStage;
+    if (!stage || !this.state.startTime) {
+      throw new Error('No active stage');
+    }
+
+    const timeTaken = (Date.now() - this.state.startTime) / 1000; // Convert to seconds
+
+    // Calculate errors
+    let errorsSelfCorrected = 0;
+    let errorsNonSelfCorrected = 0;
+
+    // Track which incorrect clicks were corrected
+    const uncorrectedErrors = new Set<string>();
+
+    this.state.clickHistory.forEach((click) => {
+      if (!click.isCorrect) {
+        if (click.wasError) {
+          // This is a self-correction click (clicking same wrong circle again)
+          errorsSelfCorrected += 1;
+          uncorrectedErrors.delete(click.label);
+        } else {
+          // New incorrect click
+          uncorrectedErrors.add(click.label);
+        }
+      }
+    });
+
+    errorsNonSelfCorrected = uncorrectedErrors.size;
+
+    const result: TrailMakingResult = {
+      stage,
+      timeTaken,
+      errorsSelfCorrected,
+      errorsNonSelfCorrected,
+      clickSequence: this.state.clickHistory,
+      completed: true,
+    };
+
+    this.state.stageResults.push(result);
+    return result;
+  }
+
+  getStageResults(): TrailMakingResult[] {
+    return this.state.stageResults;
+  }
+
+  // Helper to determine if a stage is enabled
+  isStageEnabled(stage: TrailMakingStage): boolean {
+    switch (stage) {
+      case 'practice1':
+        return this.trailMakingSettings.enablePractice1;
+      case 'task1':
+        return this.trailMakingSettings.enableTask1;
+      case 'practice2':
+        return this.trailMakingSettings.enablePractice2;
+      case 'task2':
+        return this.trailMakingSettings.enableTask2;
+      default:
+        throw new Error(`Unknown stage: ${stage}`);
+    }
+  }
+
+  // Get list of enabled stages in order
+  getEnabledStages(): TrailMakingStage[] {
+    const stages: TrailMakingStage[] = [
+      'practice1',
+      'task1',
+      'practice2',
+      'task2',
+    ];
+    return stages.filter((stage) => this.isStageEnabled(stage));
   }
 }

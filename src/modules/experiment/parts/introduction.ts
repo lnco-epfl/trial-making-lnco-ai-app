@@ -9,11 +9,11 @@ import { Timeline, Trial } from '../utils/types';
  */
 const experimentBeginTrial = (): Trial => ({
   type: FullscreenPlugin,
-  choices: [i18n.t('FLANKER.START_BUTTON')],
+  choices: [i18n.t('TRAIL_MAKING.START_BUTTON')],
   message: `
-    <div class="flanker-intro">
-      <h1>${i18n.t('FLANKER.WELCOME_TITLE')}</h1>
-      <p>${i18n.t('FLANKER.WELCOME_MESSAGE')}</p>
+    <div class="trail-making-intro">
+      <h1>${i18n.t('TRAIL_MAKING.WELCOME_TITLE')}</h1>
+      <p>${i18n.t('TRAIL_MAKING.WELCOME_MESSAGE')}</p>
     </div>
   `,
   fullscreen_mode: true,
@@ -25,36 +25,35 @@ const experimentBeginTrial = (): Trial => ({
 const taskInstructions = (): Trial[] => [
   {
     type: FullscreenPlugin,
-    choices: [i18n.t('FLANKER.CONTINUE_BUTTON')],
+    choices: [i18n.t('TRAIL_MAKING.CONTINUE_BUTTON')],
     message: `
-      <div class="flanker-ready">
-        <h2>${i18n.t('FLANKER.INSTRUCTIONS_TITLE')}</h2>
-        <p>${i18n.t('FLANKER.INSTRUCTIONS_OVERVIEW')}</p>
-        <p>${i18n.t('FLANKER.INSTRUCTIONS_CENTER_FOCUS')}</p>
+      <div class="trail-making-ready">
+        <h2>${i18n.t('TRAIL_MAKING.INSTRUCTIONS_TITLE')}</h2>
+        <p>${i18n.t('TRAIL_MAKING.INSTRUCTIONS_OVERVIEW')}</p>
+        <p>${i18n.t('TRAIL_MAKING.INSTRUCTIONS_GOAL')}</p>
       </div>
     `,
   },
   {
     type: FullscreenPlugin,
-    choices: [i18n.t('FLANKER.CONTINUE_BUTTON')],
+    choices: [i18n.t('TRAIL_MAKING.CONTINUE_BUTTON')],
     message: `
-      <div class="flanker-ready">
-        <h2>${i18n.t('FLANKER.RESPONSE_INSTRUCTIONS_TITLE')}</h2>
-        <p>${i18n.t('FLANKER.RESPONSE_LEFT')}</p>
-        <p>${i18n.t('FLANKER.RESPONSE_RIGHT')}</p>
-        <p class="important">${i18n.t('FLANKER.IGNORE_FLANKERS')}</p>
-        <p class="important">${i18n.t('FLANKER.SPEED_ACCURACY_BALANCE')}</p>
+      <div class="trail-making-ready">
+        <h2>${i18n.t('TRAIL_MAKING.INSTRUCTIONS_HOW_TO_TITLE')}</h2>
+        <p>${i18n.t('TRAIL_MAKING.INSTRUCTIONS_CLICK')}</p>
+        <p>${i18n.t('TRAIL_MAKING.INSTRUCTIONS_SEQUENCE')}</p>
+        <p class="important">${i18n.t('TRAIL_MAKING.INSTRUCTIONS_ERROR')}</p>
       </div>
     `,
   },
   {
     type: FullscreenPlugin,
-    choices: [i18n.t('FLANKER.START_PRACTICE_BUTTON')],
+    choices: [i18n.t('TRAIL_MAKING.START_PRACTICE_BUTTON')],
     message: `
-      <div class="flanker-ready">
-        <h2>${i18n.t('FLANKER.PRACTICE_INTRO_TITLE')}</h2>
-        <p>${i18n.t('FLANKER.PRACTICE_INTRO_MESSAGE')}</p>
-        <p>${i18n.t('FLANKER.READY_MESSAGE')}</p>
+      <div class="trail-making-ready">
+        <h2>${i18n.t('TRAIL_MAKING.PRACTICE_INTRO_TITLE')}</h2>
+        <p>${i18n.t('TRAIL_MAKING.PRACTICE_INTRO_MESSAGE')}</p>
+        <p>${i18n.t('TRAIL_MAKING.READY_MESSAGE')}</p>
       </div>
     `,
   },

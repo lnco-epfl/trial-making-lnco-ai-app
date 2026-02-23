@@ -5,105 +5,133 @@ import { AllSettingsType } from '@/modules/context/SettingsContext';
 
 import { ExperimentState } from '../jspsych/experiment-state-class';
 import i18n from '../jspsych/i18n';
-import FlankerStimulusPlugin from '../trials/flanker-stimulus-trial';
-import { practiceFeedbackTrial } from '../trials/practice-feedback-trial';
+import TrailMakingStimulusPlugin from '../trials/trail-making-stimulus-trial';
 import { Timeline } from '../utils/types';
 
 /**
- * Build practice trials timeline
+ * Build practice stage 1 (numbers 1-8)
  */
-export const buildPractice = (
+export const buildPractice1 = (
   state: ExperimentState,
   updateData?: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych?: JsPsych,
 ): Timeline => {
   const timeline: Timeline = [];
 
-  // Skip practice if configured
-  if (state.getGeneralSettings().skipPractice) {
+  // Skip if not enabled
+  if (!state.isStageEnabled('practice1')) {
     return timeline;
   }
 
-  // Initialize practice sequence
-  state.initializePracticeSequence();
-
-  // Get practice settings
-  const {
-    displayDuration,
-    interTrialInterval,
-    responseKey,
-    showFixationCross,
-  } = state.getFlankerSettings();
-
-  // Determine valid keyboard responses and mouse setting
-  const validResponses =
-    responseKey === 'mouse' ? 'NO_KEYS' : ['ArrowLeft', 'ArrowRight'];
-  const allowMouse = responseKey !== 'arrows';
-
-  // Get the full sequence
-  const trials = state.getTrials();
-
-  // Create practice trials
-  for (let i = 0; i < trials.length; i += 1) {
-    const trial = trials[i];
-
-    const practiceTrialObj = {
-      type: FlankerStimulusPlugin,
-      stimulus: trial.stimulus,
-      condition: trial.condition,
-      display_duration: displayDuration,
-      inter_trial_interval: interTrialInterval,
-      show_fixation: showFixationCross,
-      valid_responses: validResponses,
-      allow_mouse_response: allowMouse,
-      correct_response: trial.correctResponse,
-      trial_index: i,
-      state,
-      on_finish: () => {
-        // Save data after each trial
-        if (updateData && jsPsych) {
-          updateData(jsPsych.data.get(), state.getAllSettings());
-        }
-      },
-    };
-
-    timeline.push(practiceTrialObj);
-  }
-
-  // Add feedback screen
-  timeline.push(practiceFeedbackTrial(state));
-
-  // Option to repeat practice
+  // Intro screen
   timeline.push({
     type: htmlKeyboardResponse,
     stimulus: `
-      <div class="flanker-practice-repeat">
-        <h2>${i18n.t('PRACTICE.CONTINUE_TITLE')}</h2>
-        <p>${i18n.t('PRACTICE.PRESS_TO_CONTINUE')}</p>
+      <div class="trail-making-stage-intro">
+        <h2>${i18n.t('TRAIL_MAKING.PRACTICE1_TITLE')}</h2>
+        <p>${i18n.t('TRAIL_MAKING.PRACTICE1_MESSAGE')}</p>
+        <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_BEGIN')}</p>
       </div>
     `,
-    choices: ['r', ' '],
-    on_finish: (data: unknown) => {
-      // If 'r' was pressed, restart practice
-      const d = data as Record<string, unknown>;
-      if (d.response === 'r') {
-        d.repeat_practice = true;
+    choices: [' '],
+  });
+
+  // Create trial (stage initialization is now done in plugin)
+  timeline.push({
+    type: TrailMakingStimulusPlugin,
+    stage: 'practice1',
+    state,
+    provide_feedback: false,
+    circle_radius: state.getTrailMakingSettings().circleRadius,
+    on_finish: () => {
+      if (updateData && jsPsych) {
+        updateData(jsPsych.data.get(), state.getAllSettings());
       }
     },
   });
 
-  // Conditional repetition
-  const practiceLoop = {
-    timeline,
-    loop_function: (data: unknown) => {
-      // Check the last trial for repeat_practice flag
-      const d = data as Record<string, unknown> & { values: () => unknown[] };
-      const lastTrial = d.values().slice(-1)[0] as
-        | Record<string, unknown>
-        | undefined;
-      return lastTrial?.repeat_practice === true;
+  // Feedback screen
+  timeline.push({
+    type: htmlKeyboardResponse,
+    stimulus: () => {
+      const results = state.getStageResults();
+      const lastResult = results[results.length - 1];
+      return `
+        <div class="trail-making-feedback">
+          <h2>${i18n.t('TRAIL_MAKING.PRACTICE_COMPLETE_TITLE')}</h2>
+          <p><strong>${i18n.t('TRAIL_MAKING.TIME_TAKEN')}</strong> ${lastResult.timeTaken.toFixed(2)} ${i18n.t('TRAIL_MAKING.SECONDS')}</p>
+          <p><strong>${i18n.t('TRAIL_MAKING.ERRORS_SELF_CORRECTED')}</strong> ${lastResult.errorsSelfCorrected}</p>
+          <p><strong>${i18n.t('TRAIL_MAKING.ERRORS_NON_SELF_CORRECTED')}</strong> ${lastResult.errorsNonSelfCorrected}</p>
+          <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_CONTINUE')}</p>
+        </div>
+      `;
     },
-  };
+    choices: [' '],
+  });
 
-  return [practiceLoop];
+  return timeline;
+};
+
+/**
+ * Build practice stage 2 (numbers + letters 1-D)
+ */
+export const buildPractice2 = (
+  state: ExperimentState,
+  updateData?: (data: DataCollection, settings: AllSettingsType) => void,
+  jsPsych?: JsPsych,
+): Timeline => {
+  const timeline: Timeline = [];
+
+  // Skip if not enabled
+  if (!state.isStageEnabled('practice2')) {
+    return timeline;
+  }
+
+  // Intro screen
+  timeline.push({
+    type: htmlKeyboardResponse,
+    stimulus: `
+      <div class="trail-making-stage-intro">
+        <h2>${i18n.t('TRAIL_MAKING.PRACTICE2_TITLE')}</h2>
+        <p>${i18n.t('TRAIL_MAKING.PRACTICE2_MESSAGE')}</p>
+        <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_BEGIN')}</p>
+      </div>
+    `,
+    choices: [' '],
+  });
+
+  // Create trial (stage initialization is now done in plugin)
+  timeline.push({
+    type: TrailMakingStimulusPlugin,
+    stage: 'practice2',
+    state,
+    provide_feedback: false,
+    circle_radius: state.getTrailMakingSettings().circleRadius,
+    on_finish: () => {
+      if (updateData && jsPsych) {
+        updateData(jsPsych.data.get(), state.getAllSettings());
+      }
+    },
+  });
+
+  // Feedback screen
+  timeline.push({
+    type: htmlKeyboardResponse,
+    stimulus: () => {
+      const results = state.getStageResults();
+      const lastResult = results[results.length - 1];
+      return `
+        <div class="trail-making-feedback">
+          <h2>${i18n.t('TRAIL_MAKING.PRACTICE_COMPLETE_TITLE')}</h2>
+          <p><strong>${i18n.t('TRAIL_MAKING.TIME_TAKEN')}</strong> ${lastResult.timeTaken.toFixed(2)} ${i18n.t('TRAIL_MAKING.SECONDS')}</p>
+          <p><strong>${i18n.t('TRAIL_MAKING.ERRORS_SELF_CORRECTED')}</strong> ${lastResult.errorsSelfCorrected}</p>
+          <p><strong>${i18n.t('TRAIL_MAKING.ERRORS_NON_SELF_CORRECTED')}</strong> ${lastResult.errorsNonSelfCorrected}</p>
+          <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_CONTINUE')}</p>
+        </div>
+      `;
+    },
+    choices: [' '],
+  });
+
+  return timeline;
 };

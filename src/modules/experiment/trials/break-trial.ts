@@ -7,7 +7,7 @@ import { TIMING } from '../utils/constants';
 import { Trial } from '../utils/types';
 
 export const breakTrial = (state: ExperimentState, jsPsych: JsPsych): Trial => {
-  const duration = state.getBreakDuration();
+  const duration = state.getBreakSettings().breakDuration;
 
   return {
     type: htmlKeyboardResponse,
