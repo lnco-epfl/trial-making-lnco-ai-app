@@ -41,7 +41,7 @@ export const buildPractice1 = (
     type: TrailMakingStimulusPlugin,
     stage: 'practice1',
     state,
-    provide_feedback: state.getTrailMakingSettings().provideFeedback,
+    provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
     on_finish: () => {
       if (updateData && jsPsych) {
@@ -105,7 +105,7 @@ export const buildPractice2 = (
     type: TrailMakingStimulusPlugin,
     stage: 'practice2',
     state,
-    provide_feedback: state.getTrailMakingSettings().provideFeedback,
+    provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
     on_finish: () => {
       if (updateData && jsPsych) {

@@ -268,6 +268,23 @@ export class ExperimentState {
     return { isCorrect, isComplete, wasError };
   }
 
+  undoLastClick(): boolean {
+    const lastClick = this.state.clickHistory.pop();
+
+    if (!lastClick) {
+      return false;
+    }
+
+    if (lastClick.isCorrect) {
+      this.state.currentClickIndex = Math.max(
+        0,
+        this.state.currentClickIndex - 1,
+      );
+    }
+
+    return true;
+  }
+
   // Get current expected click
   getExpectedClick(): string {
     const layout = this.getCurrentLayout();

@@ -7,6 +7,7 @@ import {
   ExperimentState,
   TrailMakingStage,
 } from '../jspsych/experiment-state-class';
+import i18n from '../jspsych/i18n';
 import {
   PRACTICE1_FIELD,
   PRACTICE2_FIELD,
@@ -27,7 +28,19 @@ export type TrailMakingDataType = {
   errorsSelfCorrected: number;
   errorsNonSelfCorrected: number;
   clickSequence: ClickData[];
+  frameClicks: FrameClickData[];
   completed: boolean;
+};
+
+export type FrameClickData = {
+  timestamp: number;
+  relativeX: number;
+  relativeY: number;
+  normalizedX: number;
+  normalizedY: number;
+  targetLabel: string | null;
+  isCircleClick: boolean;
+  isUndo: boolean;
 };
 
 /**
@@ -142,20 +155,30 @@ class TrailMakingStimulusPlugin {
       circle_radius: circleRadius,
       provide_feedback: provideFeedback,
     } = trial;
+    const t = i18n.t.bind(i18n);
     const { fontSize } = state.getGeneralSettings();
+    const isPracticeStage = stage === 'practice1' || stage === 'practice2';
+    const usesDeferredEvaluation = !provideFeedback || isPracticeStage;
 
     // Reset state for this stage (in case state was modified by previous stages during timeline construction)
     state.startStage(stage);
     const layout = state.getCurrentLayout();
 
-    // State variables local to trial
-    const clickSequence: string[] = []; // Track all clicks in order
-    let lastClickedLabel: string | null = null; // Track the most recent click
-    const lines: SVGLineElement[] = [];
+    const clickSequence: string[] = [];
+    const frameClicks: FrameClickData[] = [];
+    let lastClickedLabel: string | null = null;
+    const lines: {
+      element: SVGLineElement;
+      fromLabel: string;
+      toLabel: string;
+    }[] = [];
     let svgElement: SVGSVGElement | null = null;
     let trialEnded = false;
     let doneButton: HTMLButtonElement | null = null;
-    const circleElements = new Map<string, HTMLElement>(); // Store circle elements by label
+    let feedbackPanel: HTMLDivElement | null = null;
+    let interactionLocked = false;
+    let pendingUndoLabel: string | null = null;
+    const circleElements = new Map<string, HTMLElement>();
 
     // Helper function to get instruction text
     const getInstructionText = (): string => {
@@ -173,9 +196,8 @@ class TrailMakingStimulusPlugin {
       }
     };
 
-    // Helper function to update Done button state
     const updateDoneButton = (): void => {
-      if (doneButton && !provideFeedback) {
+      if (doneButton && usesDeferredEvaluation) {
         doneButton.disabled = false;
         doneButton.style.backgroundColor = '#4a90e2';
         doneButton.style.color = 'white';
@@ -183,28 +205,38 @@ class TrailMakingStimulusPlugin {
       }
     };
 
-    // Helper function to remove the last line
     const removeLastLine = (): void => {
       if (lines.length > 0) {
         const lastLine = lines.pop();
-        if (lastLine && lastLine.parentNode) {
-          lastLine.parentNode.removeChild(lastLine);
+        if (lastLine?.element?.parentNode) {
+          lastLine.element.parentNode.removeChild(lastLine.element);
         }
       }
     };
 
-    // Helper function to update circle colors based on selection state
+    const clearAllLines = (): void => {
+      while (lines.length > 0) {
+        removeLastLine();
+      }
+    };
+
+    const clearFeedbackPanel = (): void => {
+      if (feedbackPanel && feedbackPanel.parentNode) {
+        feedbackPanel.parentNode.removeChild(feedbackPanel);
+      }
+      feedbackPanel = null;
+    };
+
     const updateCircleColor = (circleEl: HTMLElement, label: string): void => {
-      if (!provideFeedback) {
-        // For main trials: yellow if last clicked, grey if previously clicked
+      if (usesDeferredEvaluation) {
         if (label === lastClickedLabel) {
           // eslint-disable-next-line no-param-reassign
-          circleEl.style.backgroundColor = '#FFD700'; // Yellow for most recent
+          circleEl.style.backgroundColor = '#FFD700';
           // eslint-disable-next-line no-param-reassign
-          circleEl.style.borderColor = '#999'; // Neutral border
+          circleEl.style.borderColor = '#999';
         } else if (clickSequence.includes(label)) {
           // eslint-disable-next-line no-param-reassign
-          circleEl.style.backgroundColor = '#E0E0E0'; // Grey for previously clicked
+          circleEl.style.backgroundColor = '#E0E0E0';
           // eslint-disable-next-line no-param-reassign
           circleEl.style.borderColor = '#666';
         } else {
@@ -216,28 +248,24 @@ class TrailMakingStimulusPlugin {
       }
     };
 
-    // Helper function to recolor all circles based on current state
     const recolorAllCircles = (): void => {
-      if (!provideFeedback) {
+      if (usesDeferredEvaluation) {
         circleElements.forEach((circleEl, label) => {
           updateCircleColor(circleEl, label);
         });
       }
     };
 
-    // Helper function to draw line between two circles
     const drawLineToCircle = (toCircle: CirclePosition): void => {
       if (!svgElement) return;
 
       if (clickSequence.length < 2) return;
 
-      // Get the previous circle from the sequence
       const prevLabel = clickSequence[clickSequence.length - 2];
       const prevCircle = layout.circles.find((c) => c.label === prevLabel);
 
       if (!prevCircle) return;
 
-      // Create line
       const line = document.createElementNS(
         'http://www.w3.org/2000/svg',
         'line',
@@ -251,10 +279,157 @@ class TrailMakingStimulusPlugin {
       line.style.pointerEvents = 'none';
 
       svgElement.appendChild(line);
-      lines.push(line);
+      lines.push({
+        element: line,
+        fromLabel: prevLabel,
+        toLabel: toCircle.label,
+      });
     };
 
-    // Helper function to end the trial
+    const evaluatePracticeAttempt = (): {
+      success: boolean;
+      wrongIndex: number;
+    } => {
+      const expected = layout.sequence;
+
+      const effectiveSequence = clickSequence.reduce<string[]>((acc, label) => {
+        if (acc.length >= 2 && label === acc[acc.length - 2]) {
+          acc.pop();
+          return acc;
+        }
+
+        acc.push(label);
+        return acc;
+      }, []);
+
+      const comparisonLength = Math.max(
+        effectiveSequence.length,
+        expected.length,
+      );
+
+      for (let index = 0; index < comparisonLength; index += 1) {
+        if (effectiveSequence[index] !== expected[index]) {
+          return { success: false, wrongIndex: index };
+        }
+      }
+
+      if (effectiveSequence.length === expected.length) {
+        return { success: true, wrongIndex: -1 };
+      }
+
+      return { success: false, wrongIndex: expected.length };
+    };
+
+    const setAllSuccessColors = (): void => {
+      circleElements.forEach((circleEl) => {
+        // eslint-disable-next-line no-param-reassign
+        circleEl.style.backgroundColor = '#90EE90';
+        // eslint-disable-next-line no-param-reassign
+        circleEl.style.borderColor = '#228B22';
+      });
+      lines.forEach((lineData) => {
+        lineData.element.setAttribute('stroke', '#228B22');
+      });
+    };
+
+    const highlightWrongAnswer = (wrongIndex: number): void => {
+      const isValidTransition = (
+        fromLabel: string,
+        toLabel: string,
+      ): boolean => {
+        const fromIndex = layout.sequence.indexOf(fromLabel);
+        if (fromIndex < 0 || fromIndex >= layout.sequence.length - 1) {
+          return false;
+        }
+
+        return layout.sequence[fromIndex + 1] === toLabel;
+      };
+
+      if (wrongIndex < clickSequence.length) {
+        const wrongLabel = clickSequence[wrongIndex];
+        const wrongCircle = circleElements.get(wrongLabel);
+        if (wrongCircle) {
+          wrongCircle.style.backgroundColor = '#FFB6C6';
+          wrongCircle.style.borderColor = '#DC143C';
+        }
+      }
+
+      if (wrongIndex > 0 && wrongIndex - 1 < lines.length) {
+        lines[wrongIndex - 1].element.setAttribute('stroke', '#DC143C');
+      }
+
+      for (
+        let lineIndex = wrongIndex;
+        lineIndex < lines.length;
+        lineIndex += 1
+      ) {
+        if (lineIndex + 1 >= clickSequence.length) {
+          break;
+        }
+
+        const currentLabel = clickSequence[lineIndex];
+        const nextLabel = clickSequence[lineIndex + 1];
+
+        if (!isValidTransition(currentLabel, nextLabel)) {
+          lines[lineIndex].element.setAttribute('stroke', '#DC143C');
+        }
+      }
+    };
+
+    const resetAttempt = (): void => {
+      state.startStage(stage);
+      clickSequence.length = 0;
+      lastClickedLabel = null;
+      interactionLocked = false;
+      clearAllLines();
+      clearFeedbackPanel();
+      recolorAllCircles();
+
+      if (doneButton) {
+        doneButton.disabled = true;
+        doneButton.style.backgroundColor = '#cccccc';
+        doneButton.style.color = '#000';
+        doneButton.style.cursor = 'not-allowed';
+      }
+    };
+
+    const showFeedbackPanel = (
+      html: string,
+      buttonText: string,
+      onClick: () => void,
+      buttonColor: string,
+    ): void => {
+      clearFeedbackPanel();
+      feedbackPanel = document.createElement('div');
+      feedbackPanel.className = 'trail-making-practice-feedback-panel';
+      feedbackPanel.style.cssText = `
+        margin-top: 16px;
+        text-align: center;
+        max-width: 700px;
+      `;
+
+      const message = document.createElement('div');
+      message.innerHTML = html;
+      feedbackPanel.appendChild(message);
+
+      const actionButton = document.createElement('button');
+      actionButton.textContent = buttonText;
+      actionButton.style.cssText = `
+        margin-top: 12px;
+        padding: 10px 24px;
+        font-size: 1rem;
+        cursor: pointer;
+        background-color: ${buttonColor};
+        color: white;
+        border: 1px solid ${buttonColor};
+        border-radius: 4px;
+      `;
+      actionButton.addEventListener('click', onClick);
+      feedbackPanel.appendChild(actionButton);
+
+      displayElement.appendChild(feedbackPanel);
+    };
+
     const endTrial = (): void => {
       if (trialEnded) return;
       trialEnded = true;
@@ -267,27 +442,66 @@ class TrailMakingStimulusPlugin {
         errorsSelfCorrected: result.errorsSelfCorrected,
         errorsNonSelfCorrected: result.errorsNonSelfCorrected,
         clickSequence: result.clickSequence,
+        frameClicks,
         completed: result.completed,
       };
 
       this.jsPsych.finishTrial(trialData);
     };
 
-    // Helper function to handle circle click
-    const handleCircleClick = (
-      circle: CirclePosition,
-      circleEl: HTMLElement,
-    ): void => {
+    const onDoneClick = (): void => {
       if (trialEnded) return;
 
-      // Enable Done button on first click for main trials
-      if (!provideFeedback) {
+      if (!isPracticeStage) {
+        endTrial();
+        return;
+      }
+
+      const evaluation = evaluatePracticeAttempt();
+      interactionLocked = true;
+
+      if (evaluation.success) {
+        setAllSuccessColors();
+        showFeedbackPanel(
+          `<p style="color:#228B22;font-weight:700;">${t('TRAIL_MAKING.PRACTICE_TRIAL_SUCCESS')}</p>`,
+          t('TRAIL_MAKING.CONTINUE_BUTTON_INLINE'),
+          () => {
+            endTrial();
+          },
+          '#228B22',
+        );
+        return;
+      }
+
+      highlightWrongAnswer(evaluation.wrongIndex);
+      showFeedbackPanel(
+        `<p style="color:#DC143C;font-weight:700;">${t('TRAIL_MAKING.PRACTICE_TRIAL_ERROR')}</p><p>${t('TRAIL_MAKING.PRACTICE_TRIAL_RETRY_PROMPT')}</p>`,
+        t('TRAIL_MAKING.RETRY_BUTTON'),
+        () => {
+          resetAttempt();
+        },
+        '#4a90e2',
+      );
+    };
+
+    const handleCircleClick = (
+      circle: CirclePosition,
+      _circleEl: HTMLElement,
+    ): void => {
+      if (trialEnded || interactionLocked) return;
+
+      if (usesDeferredEvaluation) {
         updateDoneButton();
       }
 
-      // Check if this is the last clicked circle (undo/correction)
       if (circle.label === lastClickedLabel) {
-        // Undo the last click
+        const didUndo = state.undoLastClick();
+        if (!didUndo) {
+          return;
+        }
+
+        pendingUndoLabel = circle.label;
+
         clickSequence.pop();
         removeLastLine();
         lastClickedLabel =
@@ -298,78 +512,15 @@ class TrailMakingStimulusPlugin {
         return;
       }
 
-      // Only allow new clicks (not attempts to correct non-last circles) - but still
-      // process them through recordClick for validation and error tracking
-      const { isCorrect, isComplete, wasError } = state.recordClick(
-        circle.label,
-        layout,
-      );
+      state.recordClick(circle.label, layout);
+      clickSequence.push(circle.label);
 
-      if (isCorrect) {
-        // Record successful click
-        clickSequence.push(circle.label);
-
-        if (provideFeedback) {
-          // Show feedback colors for practice trials
-          // eslint-disable-next-line no-param-reassign
-          circleEl.style.backgroundColor = '#90EE90'; // Light green
-          // eslint-disable-next-line no-param-reassign
-          circleEl.style.borderColor = '#228B22'; // Forest green
-        }
-
-        // Draw line from previous circle if not the first
-        if (clickSequence.length > 1) {
-          drawLineToCircle(circle);
-        }
-
-        // Update tracking
-        lastClickedLabel = circle.label;
-        recolorAllCircles();
-
-        if (isComplete) {
-          if (provideFeedback) {
-            // Auto-complete practice trials
-            endTrial();
-          }
-        }
-        return;
+      if (clickSequence.length > 1) {
+        drawLineToCircle(circle);
       }
 
-      // Handle incorrect clicks
-      if (wasError) {
-        // Self-correction: clicking the same wrong circle again
-        if (provideFeedback) {
-          // Show brief gold flash for self-correction in practice
-          // eslint-disable-next-line no-param-reassign
-          circleEl.style.backgroundColor = '#FFD700'; // Gold
-          setTimeout(() => {
-            // eslint-disable-next-line no-param-reassign
-            circleEl.style.backgroundColor = '#FFB6C6';
-          }, 200);
-        }
-      } else if (provideFeedback) {
-        // New error - show red flash only for practice trials
-        // eslint-disable-next-line no-param-reassign
-        circleEl.style.backgroundColor = '#FFB6C6'; // Light red
-        // eslint-disable-next-line no-param-reassign
-        circleEl.style.borderColor = '#DC143C'; // Crimson
-
-        // Flash effect
-        setTimeout(() => {
-          // eslint-disable-next-line no-param-reassign
-          circleEl.style.backgroundColor = '#FFB6C6';
-        }, 200);
-      } else {
-        // For main trials, record the incorrect click but don't show color feedback
-        // Incorrect click still added to sequence for tracking
-        clickSequence.push(circle.label);
-        lastClickedLabel = circle.label;
-        recolorAllCircles();
-
-        if (clickSequence.length > 1) {
-          drawLineToCircle(circle);
-        }
-      }
+      lastClickedLabel = circle.label;
+      recolorAllCircles();
     };
 
     // Setup display element
@@ -391,6 +542,44 @@ class TrailMakingStimulusPlugin {
       background-color: #f9f9f9;
     `;
 
+    const recordFrameClick = (event: MouseEvent): void => {
+      const frameRect = container.getBoundingClientRect();
+      const relativeX = event.clientX - frameRect.left;
+      const relativeY = event.clientY - frameRect.top;
+
+      if (
+        relativeX < 0 ||
+        relativeX > frameRect.width ||
+        relativeY < 0 ||
+        relativeY > frameRect.height
+      ) {
+        return;
+      }
+
+      const targetElement = event.target as HTMLElement;
+      const circleTarget = targetElement.closest('.trail-making-circle');
+      const targetLabel =
+        circleTarget instanceof HTMLElement
+          ? (circleTarget.dataset.label ?? null)
+          : null;
+
+      frameClicks.push({
+        timestamp: Date.now(),
+        relativeX,
+        relativeY,
+        normalizedX: frameRect.width > 0 ? relativeX / frameRect.width : 0,
+        normalizedY: frameRect.height > 0 ? relativeY / frameRect.height : 0,
+        targetLabel,
+        isCircleClick: Boolean(targetLabel),
+        isUndo:
+          targetLabel !== null &&
+          pendingUndoLabel !== null &&
+          targetLabel === pendingUndoLabel,
+      });
+
+      pendingUndoLabel = null;
+    };
+
     // Create SVG for drawing lines
     svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svgElement.style.cssText = `
@@ -403,6 +592,9 @@ class TrailMakingStimulusPlugin {
       z-index: 1;
     `;
     container.appendChild(svgElement);
+    container.addEventListener('click', (event) => {
+      recordFrameClick(event);
+    });
 
     // Create circles
     layout.circles.forEach((circle) => {
@@ -431,7 +623,6 @@ class TrailMakingStimulusPlugin {
       `;
       circleEl.textContent = circle.label;
 
-      // Store reference for later access during coloring
       circleElements.set(circle.label, circleEl);
 
       // Add click handler
@@ -439,16 +630,13 @@ class TrailMakingStimulusPlugin {
         handleCircleClick(circle, circleEl);
       });
 
-      // Hover effect - only show for non-clicked circles
       circleEl.addEventListener('mouseenter', () => {
-        if (!clickSequence.includes(circle.label)) {
-          // eslint-disable-next-line no-param-reassign
+        if (!clickSequence.includes(circle.label) && !interactionLocked) {
           circleEl.style.backgroundColor = '#e8e8e8';
         }
       });
       circleEl.addEventListener('mouseleave', () => {
-        if (!clickSequence.includes(circle.label)) {
-          // eslint-disable-next-line no-param-reassign
+        if (!clickSequence.includes(circle.label) && !interactionLocked) {
           circleEl.style.backgroundColor = 'white';
         }
       });
@@ -470,25 +658,22 @@ class TrailMakingStimulusPlugin {
     displayElement.appendChild(instructionDiv);
     displayElement.appendChild(container);
 
-    // Create and add Done button that appears when sequence is complete (only for main trials)
-    if (!provideFeedback) {
+    if (usesDeferredEvaluation) {
       doneButton = document.createElement('button');
-      doneButton.textContent = 'Done';
+      doneButton.textContent = t('TRAIL_MAKING.DONE_BUTTON');
       doneButton.disabled = true;
       doneButton.style.cssText = `
         margin-top: 20px;
         padding: 10px 30px;
         font-size: 1.1em;
-        cursor: pointer;
+        cursor: not-allowed;
         background-color: #cccccc;
         color: #000;
         border: 1px solid #999;
         border-radius: 4px;
       `;
       doneButton.addEventListener('click', () => {
-        if (!trialEnded) {
-          endTrial();
-        }
+        onDoneClick();
       });
       displayElement.appendChild(doneButton);
     }
