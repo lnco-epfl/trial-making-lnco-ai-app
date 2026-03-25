@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 01-patient-instructions-03-PLAN.md
-last_updated: "2026-03-25T14:13:45.493Z"
+status: Milestone complete (human validation deferred)
+stopped_at: Completed 02-screen-calibration with deferred manual checks
+last_updated: "2026-03-25T16:40:00.000Z"
 progress:
   total_phases: 2
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** A PD patient with limited computer experience must be able to start, understand, and complete the task correctly on their own — because bad instructions equal invalid data.
-**Current focus:** Phase 1 — Patient Instructions
+**Current focus:** Milestone closeout
 
 ## Current Position
 
-Phase: 1 (Patient Instructions) — EXECUTING
-Plan: 3 of 3
+Phase: 2 (Screen Calibration) — COMPLETE (VALIDATION DEFERRED)
+Plan: 1 of 1
 
 ## Performance Metrics
 
@@ -61,6 +61,9 @@ Recent decisions affecting current work:
 - [Phase 01-patient-instructions]: Labels render on all four Trail Making stages using sequence-based circle lookup and dynamic circleRadius+6px offset below circle
 - [Phase 01-patient-instructions]: buildIntroduction returns welcome screen only; per-stage instructions in each stage builder
 - [Phase 01-patient-instructions]: jsPsych conditional_function used for retry branching; review button calls jsPsych.finishTrial()
+- [Phase 02-screen-calibration]: `screenCalibration` parsed from local context, with tolerant validation (`fontSize`, `scale`)
+- [Phase 02-screen-calibration]: effective trial scale computed at render-time and capped to viewport via `min(calibrationScale, maxFitScale)`
+- [Phase 02-screen-calibration]: account-era ownership shim uses `accountId ?? memberId` in loader/context
 
 ### Pending Todos
 
@@ -68,10 +71,10 @@ None yet.
 
 ### Blockers/Concerns
 
-None.
+- Runtime human validation was deferred by user decision.
 
 ## Session Continuity
 
-Last session: 2026-03-25T14:13:45.489Z
-Stopped at: Completed 01-patient-instructions-03-PLAN.md
+Last session: 2026-03-25T16:40:00.000Z
+Stopped at: Completed 02-screen-calibration with deferred manual checks
 Resume file: None

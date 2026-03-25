@@ -11,6 +11,8 @@ import PreloadPlugin from '@jspsych/plugin-preload';
 import { Marked } from '@ts-stack/markdown';
 import { DataCollection, JsPsych, initJsPsych } from 'jspsych';
 
+import { ScreenCalibration } from '@/utils/screenCalibration';
+
 import { ExperimentResult } from '../config/appResults';
 import { AllSettingsType, NextStepSettings } from '../context/SettingsContext';
 import { ExperimentState } from './jspsych/experiment-state-class';
@@ -51,6 +53,7 @@ export async function run({
     settings: AllSettingsType;
     results: ExperimentResult;
     participantName: string;
+    screenCalibration?: ScreenCalibration;
   };
   updateData: (data: DataCollection, settings: AllSettingsType) => void;
 }): Promise<JsPsych> {
@@ -79,16 +82,17 @@ export async function run({
     }
   }
 
-  // Apply font size setting
-  if (state.getGeneralSettings().fontSize) {
+  const appliedFontSize =
+    input.screenCalibration?.fontSize ?? state.getGeneralSettings().fontSize;
+  const calibrationScale = input.screenCalibration?.scale ?? 1;
+
+  // Apply calibrated font size (fallback to admin setting when absent)
+  if (appliedFontSize) {
     const jspsychDisplayElement = document.getElementById(
       'jspsych-display-element',
     );
     if (jspsychDisplayElement) {
-      jspsychDisplayElement.setAttribute(
-        'data-font-size',
-        state.getGeneralSettings().fontSize,
-      );
+      jspsychDisplayElement.setAttribute('data-font-size', appliedFontSize);
     }
   }
 
@@ -201,7 +205,12 @@ export async function run({
   // Practice 1 (numbers 1-8)
   if (state.isStageEnabled('practice1')) {
     timeline.push({
-      timeline: buildPractice1(state, updateDataWithSettings, jsPsych),
+      timeline: buildPractice1(
+        state,
+        updateDataWithSettings,
+        jsPsych,
+        calibrationScale,
+      ),
       on_timeline_start() {
         if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.1;
       },
@@ -211,7 +220,12 @@ export async function run({
   // Task 1 (numbers 1-25)
   if (state.isStageEnabled('task1')) {
     timeline.push({
-      timeline: buildTask1(state, updateDataWithSettings, jsPsych),
+      timeline: buildTask1(
+        state,
+        updateDataWithSettings,
+        jsPsych,
+        calibrationScale,
+      ),
       on_timeline_start() {
         if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.3;
       },
@@ -221,7 +235,12 @@ export async function run({
   // Practice 2 (numbers + letters 1-D)
   if (state.isStageEnabled('practice2')) {
     timeline.push({
-      timeline: buildPractice2(state, updateDataWithSettings, jsPsych),
+      timeline: buildPractice2(
+        state,
+        updateDataWithSettings,
+        jsPsych,
+        calibrationScale,
+      ),
       on_timeline_start() {
         if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.6;
       },
@@ -231,7 +250,12 @@ export async function run({
   // Task 2 (numbers + letters 1-13)
   if (state.isStageEnabled('task2')) {
     timeline.push({
-      timeline: buildTask2(state, updateDataWithSettings, jsPsych),
+      timeline: buildTask2(
+        state,
+        updateDataWithSettings,
+        jsPsych,
+        calibrationScale,
+      ),
       on_timeline_start() {
         if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.8;
       },

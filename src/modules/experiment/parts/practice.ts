@@ -22,6 +22,7 @@ export const buildPractice1 = (
   state: ExperimentState,
   updateData?: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych?: JsPsych,
+  calibrationScale = 1,
 ): Timeline => {
   const timeline: Timeline = [];
 
@@ -53,6 +54,7 @@ export const buildPractice1 = (
     state,
     provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
+    calibration_scale: calibrationScale,
     on_load: () => {
       const displayEl =
         document.getElementById('jspsych-display-element') ?? document.body;
@@ -129,6 +131,7 @@ export const buildPractice1 = (
         state,
         provide_feedback: false,
         circle_radius: state.getTrailMakingSettings().circleRadius,
+        calibration_scale: calibrationScale,
         on_finish: () => {
           if (updateData && jsPsych) {
             updateData(jsPsych.data.get(), state.getAllSettings());
@@ -174,6 +177,7 @@ export const buildPractice2 = (
   state: ExperimentState,
   updateData?: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych?: JsPsych,
+  calibrationScale = 1,
 ): Timeline => {
   const timeline: Timeline = [];
 
@@ -205,6 +209,7 @@ export const buildPractice2 = (
     state,
     provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
+    calibration_scale: calibrationScale,
     on_load: () => {
       const displayEl =
         document.getElementById('jspsych-display-element') ?? document.body;
@@ -281,6 +286,7 @@ export const buildPractice2 = (
         state,
         provide_feedback: false,
         circle_radius: state.getTrailMakingSettings().circleRadius,
+        calibration_scale: calibrationScale,
         on_finish: () => {
           if (updateData && jsPsych) {
             updateData(jsPsych.data.get(), state.getAllSettings());

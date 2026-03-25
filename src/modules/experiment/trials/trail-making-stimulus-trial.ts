@@ -20,6 +20,7 @@ export type TrailMakingParametersType = {
   state: ExperimentState;
   provide_feedback: boolean;
   circle_radius: number;
+  calibration_scale: number;
 };
 
 export type TrailMakingDataType = {
@@ -75,6 +76,7 @@ const TARGET_MAX_HEIGHT_VH = 80;
  */
 const getFieldDimensions = (
   stage: TrailMakingStage,
+  scale = 1,
 ): { width: number; height: number } => {
   const fieldDef = FIELD_DEFINITIONS[stage];
   const [fieldWidth, fieldHeight] = fieldDef.size;
@@ -83,8 +85,8 @@ const getFieldDimensions = (
   const scaleFactorVh = TARGET_MAX_HEIGHT_VH / MAX_FIELD_HEIGHT;
 
   return {
-    width: fieldWidth * scaleFactorVh,
-    height: fieldHeight * scaleFactorVh,
+    width: fieldWidth * scaleFactorVh * scale,
+    height: fieldHeight * scaleFactorVh * scale,
   };
 };
 
@@ -117,6 +119,12 @@ const info = {
       default: 25,
       description: 'Radius of circles in pixels',
     },
+    calibration_scale: {
+      type: ParameterType.FLOAT,
+      default: 1,
+      description:
+        'Requested calibration scale factor, capped at runtime to fit viewport',
+    },
   },
 };
 
@@ -147,6 +155,7 @@ class TrailMakingStimulusPlugin {
       state: ExperimentState;
       provide_feedback: boolean;
       circle_radius: number;
+      calibration_scale: number;
     },
   ): void {
     const {
@@ -154,6 +163,7 @@ class TrailMakingStimulusPlugin {
       stage,
       circle_radius: circleRadius,
       provide_feedback: provideFeedback,
+      calibration_scale: calibrationScale,
     } = trial;
     const t = i18n.t.bind(i18n);
     const { fontSize } = state.getGeneralSettings();
@@ -527,8 +537,23 @@ class TrailMakingStimulusPlugin {
     const element = displayElement;
     element.className = `trail-making-trial font-${fontSize}`;
 
+    const progressBarHeight =
+      document.getElementById('jspsych-progressbar-container')?.offsetHeight ??
+      0;
+    const availableHeight = window.innerHeight - progressBarHeight;
+    const baselineHeight = (TARGET_MAX_HEIGHT_VH / 100) * window.innerHeight;
+    const maxFitScale =
+      baselineHeight > 0
+        ? Math.max(0, availableHeight) / baselineHeight
+        : calibrationScale;
+    const effectiveScale = Math.max(
+      0.1,
+      Math.min(calibrationScale, maxFitScale),
+    );
+    const effectiveRadius = circleRadius * effectiveScale;
+
     // Get field dimensions for this stage
-    const fieldDimensions = getFieldDimensions(stage);
+    const fieldDimensions = getFieldDimensions(stage, effectiveScale);
 
     // Create container
     const container = document.createElement('div');
@@ -606,8 +631,8 @@ class TrailMakingStimulusPlugin {
         left: ${circle.x}%;
         top: ${circle.y}%;
         transform: translate(-50%, -50%);
-        width: ${circleRadius * 2}px;
-        height: ${circleRadius * 2}px;
+        width: ${effectiveRadius * 2}px;
+        height: ${effectiveRadius * 2}px;
         border-radius: 50%;
         border: 3px solid #333;
         background-color: white;
@@ -655,7 +680,7 @@ class TrailMakingStimulusPlugin {
       startMarker.style.cssText = `
         position: absolute;
         left: ${firstCircle.x}%;
-        top: calc(${firstCircle.y}% + ${circleRadius + 6}px);
+        top: calc(${firstCircle.y}% + ${effectiveRadius + 6}px);
         transform: translateX(-50%);
         font-size: 0.75em;
         font-weight: bold;
@@ -671,7 +696,7 @@ class TrailMakingStimulusPlugin {
       endMarker.style.cssText = `
         position: absolute;
         left: ${lastCircle.x}%;
-        top: calc(${lastCircle.y}% + ${circleRadius + 6}px);
+        top: calc(${lastCircle.y}% + ${effectiveRadius + 6}px);
         transform: translateX(-50%);
         font-size: 0.75em;
         font-weight: bold;

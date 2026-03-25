@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l .planning/codebase/*.md)",
+      "Bash(yarn prettier:*)",
+      "Bash(node \"$HOME/.claude/get-shit-done/bin/gsd-tools.cjs\" commit \"docs: initialize project\" --files .planning/PROJECT.md)",
+      "Bash(node \"$HOME/.claude/get-shit-done/bin/gsd-tools.cjs\" config-new-project '{\"\"mode\"\":\"\"yolo\"\",\"\"granularity\"\":\"\"coarse\"\",\"\"parallelization\"\":true,\"\"commit_docs\"\":true,\"\"model_profile\"\":\"\"balanced\"\",\"\"workflow\"\":{\"\"research\"\":true,\"\"plan_check\"\":true,\"\"verifier\"\":true,\"\"nyquist_validation\"\":false,\"\"auto_advance\"\":true}}')",
+      "Bash(node \"$HOME/.claude/get-shit-done/bin/gsd-tools.cjs\" commit \"chore: add project config\" --files .planning/config.json)",
+      "Bash(node \"$HOME/.claude/get-shit-done/bin/gsd-tools.cjs\" commit \"docs: define v1 requirements\" --files .planning/REQUIREMENTS.md)",
+      "Skill(gsd:plan-phase)",
+      "Skill(gsd:plan-phase:*)",
+      "Skill(gsd:execute-phase)",
+      "Skill(gsd:execute-phase:*)",
+<<<<<<< Updated upstream
+      "Bash(node \"$HOME/.claude/get-shit-done/bin/gsd-tools.cjs\" verify key-links .planning/phases/01-patient-instructions/01-03-PLAN.md)"
+=======
+      "Bash(node \"$HOME/.claude/get-shit-done/bin/gsd-tools.cjs\" verify key-links .planning/phases/01-patient-instructions/01-03-PLAN.md)",
+      "Bash(git merge:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"chore: merge plans 01-01 and 01-02 from instructions-feedback branch:*)",
+      "Bash(yarn install:*)",
+      "Bash(ls /c/Users/mijsters/Documents/LNCOai/apps/trial-making-lnco-ai-app/.claude/worktrees/agent-ab0fb184/.eslintrc*)",
+      "Bash(ls /c/Users/mijsters/Documents/LNCOai/apps/trial-making-lnco-ai-app/.eslintrc*)",
+      "Bash(ESLINT_USE_FLAT_CONFIG=false ./node_modules/.bin/eslint --resolve-plugins-relative-to . src/langs/en.json)",
+      "Bash(./node_modules/.bin/eslint --resolve-plugins-relative-to . src/modules/experiment/parts/introduction.ts)",
+      "Bash(yarn lint:*)",
+      "Bash(yarn prettier:write)",
+      "Bash(yarn type-check:*)",
+      "Bash(git commit -m \"feat\\(01-03\\): update introduction.ts — welcome screen only, remove generic instruction screens:*)",
+      "Bash(grep -r finishTrial /c/Users/mijsters/Documents/LNCOai/apps/trial-making-lnco-ai-app/.claude/worktrees/agent-ab0fb184/node_modules/jspsych/dist/*.d.ts)",
+      "Bash(git commit -m \"feat\\(01-03\\): rewrite practice.ts — per-stage intro, conditional retry, review button:*)",
+      "Bash(git commit -m \"feat\\(01-03\\): update task-core.ts — task ready/completion screens use neuropsychologist text:*)"
+>>>>>>> Stashed changes
+    ]
+  }
+}

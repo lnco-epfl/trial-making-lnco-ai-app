@@ -15,6 +15,7 @@ export const buildTask1 = (
   state: ExperimentState,
   updateData: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych: JsPsych,
+  calibrationScale = 1,
 ): Timeline => {
   const timeline: Timeline = [];
 
@@ -42,6 +43,7 @@ export const buildTask1 = (
     state,
     provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
+    calibration_scale: calibrationScale,
     on_finish: () => {
       updateData(jsPsych.data.get(), state.getAllSettings());
     },
@@ -69,6 +71,7 @@ export const buildTask2 = (
   state: ExperimentState,
   updateData: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych: JsPsych,
+  calibrationScale = 1,
 ): Timeline => {
   const timeline: Timeline = [];
 
@@ -96,6 +99,7 @@ export const buildTask2 = (
     state,
     provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
+    calibration_scale: calibrationScale,
     on_finish: () => {
       updateData(jsPsych.data.get(), state.getAllSettings());
     },
