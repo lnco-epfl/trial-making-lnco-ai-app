@@ -72,9 +72,10 @@ const MAX_FIELD_HEIGHT = Math.max(
 const BASE_HEIGHT_PX = 836;
 
 /**
- * Fixed vertical reserve for UI chrome (progress bar + done button + margins).
+ * Fixed vertical reserve for UI chrome (progress bar + instruction text + done button + margins).
+ * ~40px progress bar + ~35px instruction + ~60px button + margins ≈ 200px.
  */
-const UI_RESERVE_PX = 100;
+const UI_RESERVE_PX = 200;
 
 const MIN_CIRCLE_RADIUS_PX = 8;
 
