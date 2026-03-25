@@ -650,7 +650,7 @@ class TrailMakingStimulusPlugin {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2em;
+        font-size: ${Math.round(effectiveCircleRadius * 0.8)}px;
         font-weight: bold;
         cursor: pointer;
         user-select: none;
