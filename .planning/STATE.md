@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 Phase: 1 of 2 (Patient Instructions)
 Plan: 0 of ? in current phase
 Status: Ready to plan
-Last activity: 2026-03-25 — Roadmap created; awaiting instruction text from user before Phase 1 planning
+Last activity: 2026-03-25 — Both CONTEXT.md files written; Phase 1 and Phase 2 ready to plan
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -51,10 +51,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- **Phase 1 blocker**: Instruction text from `docs/20260210 - Trail Making Task Instructions_JP_Clean_Reorganised.docx` must be provided by the user before Phase 1 plan can be executed. The .docx cannot be read programmatically.
+None.
 
 ## Session Continuity
 
 Last session: 2026-03-25
-Stopped at: Roadmap created; files written; awaiting user to supply EN/FR instruction text for Phase 1
+Stopped at: Both CONTEXT.md files complete. Ready to run /gsd:plan-phase 1
 Resume file: None

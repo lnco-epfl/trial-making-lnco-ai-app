@@ -27,8 +27,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Numbers-only (Part A) and numbers+letters (Part B) variants each show clearly differentiated instructions that explain what is expected for that variant
   4. A non-technical user reading the instructions can identify what to click, in what order, without any additional guidance
 **Plans**: TBD
-
-**Note for planning**: The authored instruction text lives in `docs/20260210 - Trail Making Task Instructions_JP_Clean_Reorganised.docx`, which cannot be parsed programmatically. The user must provide the EN and FR text content before execution of this phase begins.
+**Context**: `.planning/phases/01-patient-instructions/1-CONTEXT.md`
 
 **UI hint**: yes
 
@@ -43,6 +42,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. When no calibration values are present, the task behaves identically to before this phase (no regression)
   5. `yarn tsc --noEmit` and `yarn build` both pass with zero errors after all dependency and code changes
 **Plans**: TBD
+**Context**: `.planning/phases/02-screen-calibration/2-CONTEXT.md`
 
 ## Progress
 
