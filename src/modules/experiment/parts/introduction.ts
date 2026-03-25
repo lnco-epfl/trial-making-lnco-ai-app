@@ -1,11 +1,12 @@
 import FullscreenPlugin from '@jspsych/plugin-fullscreen';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ExperimentState } from '../jspsych/experiment-state-class';
 import i18n from '../jspsych/i18n';
 import { Timeline, Trial } from '../utils/types';
 
 /**
- * Fullscreen entry screen with instructions
+ * Fullscreen entry screen — welcome + start button
  */
 const experimentBeginTrial = (): Trial => ({
   type: FullscreenPlugin,
@@ -20,60 +21,12 @@ const experimentBeginTrial = (): Trial => ({
 });
 
 /**
- * Detailed task instructions
+ * Build introduction timeline — only the welcome/fullscreen entry screen.
+ * Per-stage instruction text is handled within each stage's own builder
+ * (buildPractice1, buildPractice2, buildTask1, buildTask2).
+ * The state parameter is kept for API compatibility with experiment.ts.
  */
-const taskInstructions = (): Trial[] => [
-  {
-    type: FullscreenPlugin,
-    choices: [i18n.t('TRAIL_MAKING.CONTINUE_BUTTON')],
-    message: `
-      <div class="trail-making-ready">
-        <h2>${i18n.t('TRAIL_MAKING.INSTRUCTIONS_TITLE')}</h2>
-        <p>${i18n.t('TRAIL_MAKING.INSTRUCTIONS_OVERVIEW')}</p>
-        <p>${i18n.t('TRAIL_MAKING.INSTRUCTIONS_GOAL')}</p>
-      </div>
-    `,
-  },
-  {
-    type: FullscreenPlugin,
-    choices: [i18n.t('TRAIL_MAKING.CONTINUE_BUTTON')],
-    message: `
-      <div class="trail-making-ready">
-        <h2>${i18n.t('TRAIL_MAKING.INSTRUCTIONS_HOW_TO_TITLE')}</h2>
-        <p>${i18n.t('TRAIL_MAKING.INSTRUCTIONS_CLICK')}</p>
-        <p>${i18n.t('TRAIL_MAKING.INSTRUCTIONS_SEQUENCE')}</p>
-        <p class="important">${i18n.t('TRAIL_MAKING.INSTRUCTIONS_ERROR')}</p>
-      </div>
-    `,
-  },
-  {
-    type: FullscreenPlugin,
-    choices: [i18n.t('TRAIL_MAKING.START_PRACTICE_BUTTON')],
-    message: `
-      <div class="trail-making-ready">
-        <h2>${i18n.t('TRAIL_MAKING.PRACTICE_INTRO_TITLE')}</h2>
-        <p>${i18n.t('TRAIL_MAKING.PRACTICE_INTRO_MESSAGE')}</p>
-        <p>${i18n.t('TRAIL_MAKING.READY_MESSAGE')}</p>
-      </div>
-    `,
-  },
-];
-
-/**
- * Build introduction timeline
- */
-export const buildIntroduction = (state: ExperimentState): Timeline => {
-  const instructionTimeline: Timeline = [];
-
-  // Skip instructions if configured
-  if (state.getGeneralSettings().skipInstructions) {
-    instructionTimeline.push(experimentBeginTrial());
-    return instructionTimeline;
-  }
-
-  // Full introduction sequence
-  instructionTimeline.push(experimentBeginTrial());
-  instructionTimeline.push(...taskInstructions());
-
-  return instructionTimeline;
-};
+export const buildIntroduction = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _state: ExperimentState,
+): Timeline => [experimentBeginTrial()];
