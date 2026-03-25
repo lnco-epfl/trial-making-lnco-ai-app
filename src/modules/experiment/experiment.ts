@@ -11,8 +11,6 @@ import PreloadPlugin from '@jspsych/plugin-preload';
 import { Marked } from '@ts-stack/markdown';
 import { DataCollection, JsPsych, initJsPsych } from 'jspsych';
 
-import { ScreenCalibration } from '@/utils/screenCalibration';
-
 import { ExperimentResult } from '../config/appResults';
 import { AllSettingsType, NextStepSettings } from '../context/SettingsContext';
 import { ExperimentState } from './jspsych/experiment-state-class';
@@ -53,7 +51,7 @@ export async function run({
     settings: AllSettingsType;
     results: ExperimentResult;
     participantName: string;
-    screenCalibration?: ScreenCalibration;
+    screenScale?: number;
   };
   updateData: (data: DataCollection, settings: AllSettingsType) => void;
 }): Promise<JsPsych> {
@@ -82,17 +80,16 @@ export async function run({
     }
   }
 
-  const appliedFontSize =
-    input.screenCalibration?.fontSize ?? state.getGeneralSettings().fontSize;
-  const calibrationScale = input.screenCalibration?.scale ?? 1;
-
-  // Apply calibrated font size (fallback to admin setting when absent)
-  if (appliedFontSize) {
+  // Apply font size setting
+  if (state.getGeneralSettings().fontSize) {
     const jspsychDisplayElement = document.getElementById(
       'jspsych-display-element',
     );
     if (jspsychDisplayElement) {
-      jspsychDisplayElement.setAttribute('data-font-size', appliedFontSize);
+      jspsychDisplayElement.setAttribute(
+        'data-font-size',
+        state.getGeneralSettings().fontSize,
+      );
     }
   }
 
@@ -209,7 +206,7 @@ export async function run({
         state,
         updateDataWithSettings,
         jsPsych,
-        calibrationScale,
+        input.screenScale,
       ),
       on_timeline_start() {
         if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.1;
@@ -224,7 +221,7 @@ export async function run({
         state,
         updateDataWithSettings,
         jsPsych,
-        calibrationScale,
+        input.screenScale,
       ),
       on_timeline_start() {
         if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.3;
@@ -239,7 +236,7 @@ export async function run({
         state,
         updateDataWithSettings,
         jsPsych,
-        calibrationScale,
+        input.screenScale,
       ),
       on_timeline_start() {
         if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.6;
@@ -254,7 +251,7 @@ export async function run({
         state,
         updateDataWithSettings,
         jsPsych,
-        calibrationScale,
+        input.screenScale,
       ),
       on_timeline_start() {
         if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.8;

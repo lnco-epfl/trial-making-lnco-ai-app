@@ -7,7 +7,6 @@ import { useLocalContext } from '@graasp/apps-query-client';
 import { DataCollection, JsPsych } from 'jspsych';
 
 import { hooks } from '@/config/queryClient';
-import { parseScreenCalibration } from '@/utils/screenCalibration';
 
 import { TrialData } from '../config/appResults';
 import useExperimentResults from '../context/ExperimentContext';
@@ -17,18 +16,18 @@ import { run } from '../experiment/experiment';
 export const ExperimentLoader: FC = () => {
   const settings = useSettings();
   const localContext = useLocalContext();
-  const actorId =
-    ('accountId' in localContext ? localContext.accountId : undefined) ??
-    localContext.memberId;
-  const screenCalibration = parseScreenCalibration(
-    (localContext as { screenCalibration?: unknown }).screenCalibration,
-  );
+  const { memberId } = localContext;
+  const hostScaleRaw = localContext.screenCalibration?.scale;
+  const hostScale =
+    typeof hostScaleRaw === 'number' && Number.isFinite(hostScaleRaw)
+      ? hostScaleRaw
+      : 1;
   const { data: appContextData } = hooks.useAppContext();
   let participantName = '';
 
   if (appContextData?.members) {
     participantName =
-      appContextData.members.find((member) => member.id === actorId)?.name ??
+      appContextData.members.find((member) => member.id === memberId)?.name ??
       '';
   }
   const jsPsychRef = useRef<null | Promise<JsPsych>>(null);
@@ -81,7 +80,7 @@ export const ExperimentLoader: FC = () => {
             settings,
             results: experimentResultsAppData,
             participantName,
-            screenCalibration,
+            screenScale: hostScale,
           },
           // eslint-disable-next-line @typescript-eslint/no-shadow
           updateData: (data, settings) => updateData(data, settings),
@@ -103,7 +102,7 @@ export const ExperimentLoader: FC = () => {
             settings,
             results: experimentResultsAppData,
             participantName,
-            screenCalibration,
+            screenScale: hostScale,
           },
           // eslint-disable-next-line @typescript-eslint/no-shadow
           updateData: (data, settings) => updateData(data, settings),
@@ -113,7 +112,7 @@ export const ExperimentLoader: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     experimentResultsAppData,
-    screenCalibration,
+    hostScale,
     setExperimentResult,
     settings,
     status,

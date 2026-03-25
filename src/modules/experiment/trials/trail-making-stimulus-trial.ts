@@ -19,9 +19,8 @@ export type TrailMakingParametersType = {
   stage: TrailMakingStage;
   state: ExperimentState;
   provide_feedback: boolean;
-  practice_attempt?: 1 | 2;
   circle_radius: number;
-  calibration_scale: number;
+  screen_scale?: number;
 };
 
 export type TrailMakingDataType = {
@@ -71,23 +70,52 @@ const MAX_FIELD_HEIGHT = Math.max(
  */
 const TARGET_MAX_HEIGHT_VH = 80;
 
+const MIN_CIRCLE_RADIUS_PX = 8;
+
 /**
  * Calculate scaled dimensions for a given stage
  * The largest field will be TARGET_MAX_HEIGHT_VH, others scale proportionally
  */
 const getFieldDimensions = (
   stage: TrailMakingStage,
-  scale = 1,
-): { width: number; height: number } => {
+  requestedScale: number,
+): { widthPx: number; heightPx: number; effectiveScale: number } => {
   const fieldDef = FIELD_DEFINITIONS[stage];
   const [fieldWidth, fieldHeight] = fieldDef.size;
+  const safeScale =
+    Number.isFinite(requestedScale) && requestedScale > 0 ? requestedScale : 1;
 
-  // Scale factor: vh per field unit
-  const scaleFactorVh = TARGET_MAX_HEIGHT_VH / MAX_FIELD_HEIGHT;
+  const viewportWidthPx = Math.max(window.innerWidth, 320);
+  const viewportHeightPx = Math.max(window.innerHeight, 320);
+  const progressBarHeightPx =
+    document.getElementById('jspsych-progressbar-container')?.offsetHeight ??
+    36;
+
+  // Reserve enough space to avoid scrolling: instruction + controls + margins.
+  const reservedVerticalPx = progressBarHeightPx + 190;
+  const availableWidthPx = Math.max(viewportWidthPx - 32, 220);
+  const availableHeightPx = Math.max(
+    viewportHeightPx - reservedVerticalPx,
+    220,
+  );
+
+  const baseMaxHeightPx = (TARGET_MAX_HEIGHT_VH / 100) * viewportHeightPx;
+  const basePxPerUnit = baseMaxHeightPx / MAX_FIELD_HEIGHT;
+
+  const requestedWidthPx = fieldWidth * basePxPerUnit * safeScale;
+  const requestedHeightPx = fieldHeight * basePxPerUnit * safeScale;
+
+  const fitScale = Math.min(
+    availableWidthPx / requestedWidthPx,
+    availableHeightPx / requestedHeightPx,
+    1,
+  );
+  const effectiveScale = safeScale * fitScale;
 
   return {
-    width: fieldWidth * scaleFactorVh * scale,
-    height: fieldHeight * scaleFactorVh * scale,
+    widthPx: requestedWidthPx * fitScale,
+    heightPx: requestedHeightPx * fitScale,
+    effectiveScale,
   };
 };
 
@@ -115,21 +143,15 @@ const info = {
       default: true,
       description: 'Whether to show immediate feedback',
     },
-    practice_attempt: {
-      type: ParameterType.INT,
-      default: 1,
-      description: 'Practice attempt number (1 or 2)',
-    },
     circle_radius: {
       type: ParameterType.INT,
       default: 25,
       description: 'Radius of circles in pixels',
     },
-    calibration_scale: {
+    screen_scale: {
       type: ParameterType.FLOAT,
       default: 1,
-      description:
-        'Requested calibration scale factor, capped at runtime to fit viewport',
+      description: 'Host-provided screen calibration scale',
     },
   },
 };
@@ -160,9 +182,8 @@ class TrailMakingStimulusPlugin {
       stage: TrailMakingStage;
       state: ExperimentState;
       provide_feedback: boolean;
-      practice_attempt?: 1 | 2;
       circle_radius: number;
-      calibration_scale: number;
+      screen_scale?: number;
     },
   ): void {
     const {
@@ -170,8 +191,7 @@ class TrailMakingStimulusPlugin {
       stage,
       circle_radius: circleRadius,
       provide_feedback: provideFeedback,
-      practice_attempt: practiceAttempt = 1,
-      calibration_scale: calibrationScale,
+      screen_scale: screenScale = 1,
     } = trial;
     const t = i18n.t.bind(i18n);
     const { fontSize } = state.getGeneralSettings();
@@ -198,6 +218,22 @@ class TrailMakingStimulusPlugin {
     let pendingUndoLabel: string | null = null;
     const circleElements = new Map<string, HTMLElement>();
 
+    // Helper function to get instruction text
+    const getInstructionText = (): string => {
+      switch (stage) {
+        case 'practice1':
+          return 'Click the circles in order: 1, 2, 3, 4, 5, 6, 7, 8';
+        case 'task1':
+          return 'Click the circles in order: 1, 2, 3, ... 25';
+        case 'practice2':
+          return 'Click the circles in order: 1, A, 2, B, 3, C, 4, D';
+        case 'task2':
+          return 'Click the circles in order: 1, A, 2, B, 3, C, ... 13';
+        default:
+          return '';
+      }
+    };
+
     const updateDoneButton = (): void => {
       if (doneButton && usesDeferredEvaluation) {
         doneButton.disabled = false;
@@ -213,6 +249,12 @@ class TrailMakingStimulusPlugin {
         if (lastLine?.element?.parentNode) {
           lastLine.element.parentNode.removeChild(lastLine.element);
         }
+      }
+    };
+
+    const clearAllLines = (): void => {
+      while (lines.length > 0) {
+        removeLastLine();
       }
     };
 
@@ -372,6 +414,23 @@ class TrailMakingStimulusPlugin {
       }
     };
 
+    const resetAttempt = (): void => {
+      state.startStage(stage);
+      clickSequence.length = 0;
+      lastClickedLabel = null;
+      interactionLocked = false;
+      clearAllLines();
+      clearFeedbackPanel();
+      recolorAllCircles();
+
+      if (doneButton) {
+        doneButton.disabled = true;
+        doneButton.style.backgroundColor = '#cccccc';
+        doneButton.style.color = '#000';
+        doneButton.style.cursor = 'not-allowed';
+      }
+    };
+
     const showFeedbackPanel = (
       html: string,
       buttonText: string,
@@ -453,24 +512,11 @@ class TrailMakingStimulusPlugin {
       }
 
       highlightWrongAnswer(evaluation.wrongIndex);
-
-      if (practiceAttempt >= 2) {
-        showFeedbackPanel(
-          `<p style="color:#DC143C;font-weight:700;">${t('TRAIL_MAKING.PRACTICE_TRIAL_ERROR')}</p>`,
-          t('TRAIL_MAKING.CONTINUE_BUTTON_INLINE'),
-          () => {
-            endTrial();
-          },
-          '#4a90e2',
-        );
-        return;
-      }
-
       showFeedbackPanel(
         `<p style="color:#DC143C;font-weight:700;">${t('TRAIL_MAKING.PRACTICE_TRIAL_ERROR')}</p><p>${t('TRAIL_MAKING.PRACTICE_TRIAL_RETRY_PROMPT')}</p>`,
         t('TRAIL_MAKING.RETRY_BUTTON'),
         () => {
-          endTrial();
+          resetAttempt();
         },
         '#4a90e2',
       );
@@ -519,31 +565,20 @@ class TrailMakingStimulusPlugin {
     const element = displayElement;
     element.className = `trail-making-trial font-${fontSize}`;
 
-    const progressBarHeight =
-      document.getElementById('jspsych-progressbar-container')?.offsetHeight ??
-      0;
-    const availableHeight = window.innerHeight - progressBarHeight;
-    const baselineHeight = (TARGET_MAX_HEIGHT_VH / 100) * window.innerHeight;
-    const maxFitScale =
-      baselineHeight > 0
-        ? Math.max(0, availableHeight) / baselineHeight
-        : calibrationScale;
-    const effectiveScale = Math.max(
-      0.1,
-      Math.min(calibrationScale, maxFitScale),
-    );
-    const effectiveRadius = circleRadius * effectiveScale;
-
     // Get field dimensions for this stage
-    const fieldDimensions = getFieldDimensions(stage, effectiveScale);
+    const fieldDimensions = getFieldDimensions(stage, screenScale);
+    const effectiveCircleRadius = Math.max(
+      MIN_CIRCLE_RADIUS_PX,
+      Math.round(circleRadius * fieldDimensions.effectiveScale),
+    );
 
     // Create container
     const container = document.createElement('div');
     container.className = 'trail-making-container';
     container.style.cssText = `
       position: relative;
-      width: ${fieldDimensions.width}vh;
-      height: ${fieldDimensions.height}vh;
+      width: ${fieldDimensions.widthPx}px;
+      height: ${fieldDimensions.heightPx}px;
       margin: 0 auto;
       border: 2px solid #333;
       background-color: #f9f9f9;
@@ -613,8 +648,8 @@ class TrailMakingStimulusPlugin {
         left: ${circle.x}%;
         top: ${circle.y}%;
         transform: translate(-50%, -50%);
-        width: ${effectiveRadius * 2}px;
-        height: ${effectiveRadius * 2}px;
+        width: ${effectiveCircleRadius * 2}px;
+        height: ${effectiveCircleRadius * 2}px;
         border-radius: 50%;
         border: 3px solid #333;
         background-color: white;
@@ -662,7 +697,7 @@ class TrailMakingStimulusPlugin {
       startMarker.style.cssText = `
         position: absolute;
         left: ${firstCircle.x}%;
-        top: calc(${firstCircle.y}% + ${effectiveRadius + 6}px);
+        top: calc(${firstCircle.y}% + ${effectiveCircleRadius + 6}px);
         transform: translateX(-50%);
         font-size: 0.75em;
         font-weight: bold;
@@ -678,7 +713,7 @@ class TrailMakingStimulusPlugin {
       endMarker.style.cssText = `
         position: absolute;
         left: ${lastCircle.x}%;
-        top: calc(${lastCircle.y}% + ${effectiveRadius + 6}px);
+        top: calc(${lastCircle.y}% + ${effectiveCircleRadius + 6}px);
         transform: translateX(-50%);
         font-size: 0.75em;
         font-weight: bold;
@@ -691,6 +726,18 @@ class TrailMakingStimulusPlugin {
       container.appendChild(endMarker);
     }
 
+    // Add instruction text
+    const instructionDiv = document.createElement('div');
+    instructionDiv.className = 'trail-making-instruction';
+    instructionDiv.style.cssText = `
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+      font-weight: bold;
+    `;
+    instructionDiv.innerHTML = getInstructionText();
+
+    displayElement.appendChild(instructionDiv);
     displayElement.appendChild(container);
 
     if (usesDeferredEvaluation) {

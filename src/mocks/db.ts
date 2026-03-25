@@ -42,8 +42,9 @@ export const defaultMockContext: LocalContext = {
   accountId: mockMembers[0].id,
 };
 
-const buildDatabase = (members?: CompleteMember[]): Database => {
-  const appActions: Database['appActions'] = [
+const buildDatabase = (members?: CompleteMember[]): Database => ({
+  appData: [],
+  appActions: [
     {
       id: 'cecc1671-6c9d-4604-a3a2-6d7fad4a5996',
       type: 'admin-action',
@@ -60,16 +61,11 @@ const buildDatabase = (members?: CompleteMember[]): Database => {
       item: mockItem,
       data: { content: 'other member' },
     },
-  ];
-
-  return {
-    appData: [],
-    appActions,
-    members: members ?? mockMembers,
-    appSettings: [],
-    items: [mockItem],
-    uploadedFiles: [],
-  };
-};
+  ],
+  members: members ?? mockMembers,
+  appSettings: [],
+  items: [mockItem],
+  uploadedFiles: [],
+});
 
 export default buildDatabase;

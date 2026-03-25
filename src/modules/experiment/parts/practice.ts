@@ -8,11 +8,6 @@ import i18n from '../jspsych/i18n';
 import TrailMakingStimulusPlugin from '../trials/trail-making-stimulus-trial';
 import { Timeline } from '../utils/types';
 
-const clearReviewButtons = (): void => {
-  document.getElementById('practice1-review-btn')?.remove();
-  document.getElementById('practice2-review-btn')?.remove();
-};
-
 /**
  * Build practice stage 1 (numbers 1–8)
  *
@@ -27,7 +22,7 @@ export const buildPractice1 = (
   state: ExperimentState,
   updateData?: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych?: JsPsych,
-  calibrationScale = 1,
+  screenScale?: number,
 ): Timeline => {
   const timeline: Timeline = [];
 
@@ -58,11 +53,9 @@ export const buildPractice1 = (
     stage: 'practice1',
     state,
     provide_feedback: false,
-    practice_attempt: 1,
     circle_radius: state.getTrailMakingSettings().circleRadius,
-    calibration_scale: calibrationScale,
+    screen_scale: screenScale,
     on_load: () => {
-      clearReviewButtons();
       const displayEl =
         document.getElementById('jspsych-display-element') ?? document.body;
       const reviewBtn = document.createElement('button');
@@ -137,9 +130,8 @@ export const buildPractice1 = (
         stage: 'practice1',
         state,
         provide_feedback: false,
-        practice_attempt: 2,
         circle_radius: state.getTrailMakingSettings().circleRadius,
-        calibration_scale: calibrationScale,
+        screen_scale: screenScale,
         on_finish: () => {
           if (updateData && jsPsych) {
             updateData(jsPsych.data.get(), state.getAllSettings());
@@ -185,7 +177,7 @@ export const buildPractice2 = (
   state: ExperimentState,
   updateData?: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych?: JsPsych,
-  calibrationScale = 1,
+  screenScale?: number,
 ): Timeline => {
   const timeline: Timeline = [];
 
@@ -216,11 +208,9 @@ export const buildPractice2 = (
     stage: 'practice2',
     state,
     provide_feedback: false,
-    practice_attempt: 1,
     circle_radius: state.getTrailMakingSettings().circleRadius,
-    calibration_scale: calibrationScale,
+    screen_scale: screenScale,
     on_load: () => {
-      clearReviewButtons();
       const displayEl =
         document.getElementById('jspsych-display-element') ?? document.body;
       const reviewBtn = document.createElement('button');
@@ -295,9 +285,8 @@ export const buildPractice2 = (
         stage: 'practice2',
         state,
         provide_feedback: false,
-        practice_attempt: 2,
         circle_radius: state.getTrailMakingSettings().circleRadius,
-        calibration_scale: calibrationScale,
+        screen_scale: screenScale,
         on_finish: () => {
           if (updateData && jsPsych) {
             updateData(jsPsych.data.get(), state.getAllSettings());
