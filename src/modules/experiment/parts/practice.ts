@@ -8,6 +8,11 @@ import i18n from '../jspsych/i18n';
 import TrailMakingStimulusPlugin from '../trials/trail-making-stimulus-trial';
 import { Timeline } from '../utils/types';
 
+const clearReviewButtons = (): void => {
+  document.getElementById('practice1-review-btn')?.remove();
+  document.getElementById('practice2-review-btn')?.remove();
+};
+
 /**
  * Build practice stage 1 (numbers 1–8)
  *
@@ -56,6 +61,7 @@ export const buildPractice1 = (
     circle_radius: state.getTrailMakingSettings().circleRadius,
     calibration_scale: calibrationScale,
     on_load: () => {
+      clearReviewButtons();
       const displayEl =
         document.getElementById('jspsych-display-element') ?? document.body;
       const reviewBtn = document.createElement('button');
@@ -211,6 +217,7 @@ export const buildPractice2 = (
     circle_radius: state.getTrailMakingSettings().circleRadius,
     calibration_scale: calibrationScale,
     on_load: () => {
+      clearReviewButtons();
       const displayEl =
         document.getElementById('jspsych-display-element') ?? document.body;
       const reviewBtn = document.createElement('button');

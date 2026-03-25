@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: Milestone complete (human validation deferred)
 stopped_at: Completed 02-screen-calibration with deferred manual checks
-last_updated: "2026-03-25T16:40:00.000Z"
+last_updated: '2026-03-25T16:40:00.000Z'
 progress:
   total_phases: 2
   completed_phases: 2
@@ -37,15 +37,15 @@ Plan: 1 of 1
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| - | - | - | - |
+| ----- | ----- | ----- | -------- |
+| -     | -     | -     | -        |
 
 **Recent Trend:**
 
 - Last 5 plans: —
 - Trend: —
 
-*Updated after each plan completion*
+_Updated after each plan completion_
 | Phase 01-patient-instructions P02 | 12 | 1 tasks | 1 files |
 | Phase 01-patient-instructions P03 | 35 | 3 tasks | 3 files |
 
@@ -78,3 +78,9 @@ None yet.
 Last session: 2026-03-25T16:40:00.000Z
 Stopped at: Completed 02-screen-calibration with deferred manual checks
 Resume file: None
+
+## Quick Tasks Completed
+
+| ID         | Description                                                                                  | Status   | Completed  |
+| ---------- | -------------------------------------------------------------------------------------------- | -------- | ---------- |
+| 260325-n6g | Fix instruction UI issues (hard-coded English, duplicate review button, margins/readability) | Complete | 2026-03-25 |

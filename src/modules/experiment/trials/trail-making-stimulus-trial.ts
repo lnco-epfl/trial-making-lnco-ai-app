@@ -190,22 +190,6 @@ class TrailMakingStimulusPlugin {
     let pendingUndoLabel: string | null = null;
     const circleElements = new Map<string, HTMLElement>();
 
-    // Helper function to get instruction text
-    const getInstructionText = (): string => {
-      switch (stage) {
-        case 'practice1':
-          return 'Click the circles in order: 1, 2, 3, 4, 5, 6, 7, 8';
-        case 'task1':
-          return 'Click the circles in order: 1, 2, 3, ... 25';
-        case 'practice2':
-          return 'Click the circles in order: 1, A, 2, B, 3, C, 4, D';
-        case 'task2':
-          return 'Click the circles in order: 1, A, 2, B, 3, C, ... 13';
-        default:
-          return '';
-      }
-    };
-
     const updateDoneButton = (): void => {
       if (doneButton && usesDeferredEvaluation) {
         doneButton.disabled = false;
@@ -709,18 +693,6 @@ class TrailMakingStimulusPlugin {
       container.appendChild(endMarker);
     }
 
-    // Add instruction text
-    const instructionDiv = document.createElement('div');
-    instructionDiv.className = 'trail-making-instruction';
-    instructionDiv.style.cssText = `
-      text-align: center;
-      margin-bottom: 10px;
-      font-size: 1.2em;
-      font-weight: bold;
-    `;
-    instructionDiv.innerHTML = getInstructionText();
-
-    displayElement.appendChild(instructionDiv);
     displayElement.appendChild(container);
 
     if (usesDeferredEvaluation) {

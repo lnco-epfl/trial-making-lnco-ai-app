@@ -347,6 +347,31 @@ body {
   font-size: calc(var(--font-scale, 1) * 1.1rem);
 }
 
+.trail-making-stage-intro,
+.trail-making-ready,
+.trail-making-feedback,
+.trail-making-complete {
+  width: min(92vw, 980px);
+  margin: 0 auto;
+  padding: clamp(12px, 2vw, 28px);
+  text-align: left;
+}
+
+.trail-making-stage-intro p,
+.trail-making-ready p,
+.trail-making-feedback p,
+.trail-making-complete p {
+  line-height: 1.6;
+  margin: 0 0 0.85rem;
+}
+
+.trail-making-stage-intro .continue-prompt,
+.trail-making-ready .continue-prompt,
+.trail-making-feedback .continue-prompt,
+.trail-making-complete .continue-prompt {
+  text-align: center;
+}
+
 .important {
   font-weight: bold;
   color: #ff9800;
