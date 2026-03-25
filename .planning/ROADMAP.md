@@ -29,9 +29,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Update TRAIL_MAKING i18n keys in en.json and fr.json with neuropsychologist-authored text
+- [x] 01-01-PLAN.md — Update TRAIL_MAKING i18n keys in en.json and fr.json with neuropsychologist-authored text
 - [x] 01-02-PLAN.md — Extend Start/End circle labels to all stages in stimulus plugin
-- [ ] 01-03-PLAN.md — Wire new i18n keys into introduction/practice/task screens; implement conditional retry and review-button logic
+- [x] 01-03-PLAN.md — Wire new i18n keys into introduction/practice/task screens; implement conditional retry and review-button logic
 
 **Context**: `.planning/phases/01-patient-instructions/1-CONTEXT.md`
 
