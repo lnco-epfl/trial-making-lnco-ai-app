@@ -9,7 +9,7 @@ import TrailMakingStimulusPlugin from '../trials/trail-making-stimulus-trial';
 import { Timeline } from '../utils/types';
 
 /**
- * Build main task 1 (numbers 1-25)
+ * Build main task 1 (numbers 1–25)
  */
 export const buildTask1 = (
   state: ExperimentState,
@@ -23,46 +23,39 @@ export const buildTask1 = (
     return timeline;
   }
 
-  // Ready screen
+  // Ready screen — full neuropsychologist-authored Part A task text
   timeline.push({
     type: htmlKeyboardResponse,
     stimulus: `
       <div class="trail-making-ready">
-        <h2>${i18n.t('TRAIL_MAKING.TASK1_READY_TITLE')}</h2>
-        <p>${i18n.t('TRAIL_MAKING.TASK1_READY_MESSAGE')}</p>
+        <p style="white-space: pre-line;">${i18n.t('TRAIL_MAKING.TASK1_READY_MESSAGE')}</p>
         <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_BEGIN')}</p>
       </div>
     `,
     choices: [' '],
   });
 
-  // Create trial (stage initialization is now done in plugin)
+  // Stimulus trial
   timeline.push({
     type: TrailMakingStimulusPlugin,
     stage: 'task1',
     state,
-    provide_feedback: false, // No feedback in main task
+    provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
     on_finish: () => {
       updateData(jsPsych.data.get(), state.getAllSettings());
     },
   });
 
-  // Completion screen
+  // Completion screen — neuropsychologist-authored message; no performance metrics shown
   timeline.push({
     type: htmlKeyboardResponse,
-    stimulus: () => {
-      const results = state.getStageResults();
-      const lastResult = results[results.length - 1];
-      return `
-        <div class="trail-making-complete">
-          <h2>${i18n.t('TRAIL_MAKING.TASK1_COMPLETE_TITLE')}</h2>
-          <p>${i18n.t('TRAIL_MAKING.TASK1_COMPLETE_MESSAGE')}</p>
-          <p><strong>${i18n.t('TRAIL_MAKING.TIME_TAKEN')}</strong> ${lastResult.timeTaken.toFixed(2)} ${i18n.t('TRAIL_MAKING.SECONDS')}</p>
-          <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_CONTINUE')}</p>
-        </div>
-      `;
-    },
+    stimulus: `
+      <div class="trail-making-complete">
+        <p>${i18n.t('TRAIL_MAKING.TASK1_COMPLETE_MESSAGE')}</p>
+        <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_CONTINUE')}</p>
+      </div>
+    `,
     choices: [' '],
   });
 
@@ -70,7 +63,7 @@ export const buildTask1 = (
 };
 
 /**
- * Build main task 2 (numbers + letters 1-13)
+ * Build main task 2 (numbers + letters 1–13)
  */
 export const buildTask2 = (
   state: ExperimentState,
@@ -84,46 +77,39 @@ export const buildTask2 = (
     return timeline;
   }
 
-  // Ready screen
+  // Ready screen — full neuropsychologist-authored Part B task text
   timeline.push({
     type: htmlKeyboardResponse,
     stimulus: `
       <div class="trail-making-ready">
-        <h2>${i18n.t('TRAIL_MAKING.TASK2_READY_TITLE')}</h2>
-        <p>${i18n.t('TRAIL_MAKING.TASK2_READY_MESSAGE')}</p>
+        <p style="white-space: pre-line;">${i18n.t('TRAIL_MAKING.TASK2_READY_MESSAGE')}</p>
         <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_BEGIN')}</p>
       </div>
     `,
     choices: [' '],
   });
 
-  // Create trial (stage initialization is now done in plugin)
+  // Stimulus trial
   timeline.push({
     type: TrailMakingStimulusPlugin,
     stage: 'task2',
     state,
-    provide_feedback: false, // No feedback in main task
+    provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
     on_finish: () => {
       updateData(jsPsych.data.get(), state.getAllSettings());
     },
   });
 
-  // Completion screen
+  // Completion screen — neuropsychologist-authored message; no performance metrics shown
   timeline.push({
     type: htmlKeyboardResponse,
-    stimulus: () => {
-      const results = state.getStageResults();
-      const lastResult = results[results.length - 1];
-      return `
-        <div class="trail-making-complete">
-          <h2>${i18n.t('TRAIL_MAKING.TASK2_COMPLETE_TITLE')}</h2>
-          <p>${i18n.t('TRAIL_MAKING.TASK2_COMPLETE_MESSAGE')}</p>
-          <p><strong>${i18n.t('TRAIL_MAKING.TIME_TAKEN')}</strong> ${lastResult.timeTaken.toFixed(2)} ${i18n.t('TRAIL_MAKING.SECONDS')}</p>
-          <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_CONTINUE')}</p>
-        </div>
-      `;
-    },
+    stimulus: `
+      <div class="trail-making-complete">
+        <p>${i18n.t('TRAIL_MAKING.TASK2_COMPLETE_MESSAGE')}</p>
+        <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_CONTINUE')}</p>
+      </div>
+    `,
     choices: [' '],
   });
 
