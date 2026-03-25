@@ -58,6 +58,7 @@ export const buildPractice1 = (
     stage: 'practice1',
     state,
     provide_feedback: false,
+    practice_attempt: 1,
     circle_radius: state.getTrailMakingSettings().circleRadius,
     calibration_scale: calibrationScale,
     on_load: () => {
@@ -136,6 +137,7 @@ export const buildPractice1 = (
         stage: 'practice1',
         state,
         provide_feedback: false,
+        practice_attempt: 2,
         circle_radius: state.getTrailMakingSettings().circleRadius,
         calibration_scale: calibrationScale,
         on_finish: () => {
@@ -214,6 +216,7 @@ export const buildPractice2 = (
     stage: 'practice2',
     state,
     provide_feedback: false,
+    practice_attempt: 1,
     circle_radius: state.getTrailMakingSettings().circleRadius,
     calibration_scale: calibrationScale,
     on_load: () => {
@@ -292,6 +295,7 @@ export const buildPractice2 = (
         stage: 'practice2',
         state,
         provide_feedback: false,
+        practice_attempt: 2,
         circle_radius: state.getTrailMakingSettings().circleRadius,
         calibration_scale: calibrationScale,
         on_finish: () => {

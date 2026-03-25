@@ -19,6 +19,7 @@ export type TrailMakingParametersType = {
   stage: TrailMakingStage;
   state: ExperimentState;
   provide_feedback: boolean;
+  practice_attempt?: 1 | 2;
   circle_radius: number;
   calibration_scale: number;
 };
@@ -114,6 +115,11 @@ const info = {
       default: true,
       description: 'Whether to show immediate feedback',
     },
+    practice_attempt: {
+      type: ParameterType.INT,
+      default: 1,
+      description: 'Practice attempt number (1 or 2)',
+    },
     circle_radius: {
       type: ParameterType.INT,
       default: 25,
@@ -154,6 +160,7 @@ class TrailMakingStimulusPlugin {
       stage: TrailMakingStage;
       state: ExperimentState;
       provide_feedback: boolean;
+      practice_attempt?: 1 | 2;
       circle_radius: number;
       calibration_scale: number;
     },
@@ -163,6 +170,7 @@ class TrailMakingStimulusPlugin {
       stage,
       circle_radius: circleRadius,
       provide_feedback: provideFeedback,
+      practice_attempt: practiceAttempt = 1,
       calibration_scale: calibrationScale,
     } = trial;
     const t = i18n.t.bind(i18n);
@@ -205,12 +213,6 @@ class TrailMakingStimulusPlugin {
         if (lastLine?.element?.parentNode) {
           lastLine.element.parentNode.removeChild(lastLine.element);
         }
-      }
-    };
-
-    const clearAllLines = (): void => {
-      while (lines.length > 0) {
-        removeLastLine();
       }
     };
 
@@ -370,23 +372,6 @@ class TrailMakingStimulusPlugin {
       }
     };
 
-    const resetAttempt = (): void => {
-      state.startStage(stage);
-      clickSequence.length = 0;
-      lastClickedLabel = null;
-      interactionLocked = false;
-      clearAllLines();
-      clearFeedbackPanel();
-      recolorAllCircles();
-
-      if (doneButton) {
-        doneButton.disabled = true;
-        doneButton.style.backgroundColor = '#cccccc';
-        doneButton.style.color = '#000';
-        doneButton.style.cursor = 'not-allowed';
-      }
-    };
-
     const showFeedbackPanel = (
       html: string,
       buttonText: string,
@@ -468,11 +453,24 @@ class TrailMakingStimulusPlugin {
       }
 
       highlightWrongAnswer(evaluation.wrongIndex);
+
+      if (practiceAttempt >= 2) {
+        showFeedbackPanel(
+          `<p style="color:#DC143C;font-weight:700;">${t('TRAIL_MAKING.PRACTICE_TRIAL_ERROR')}</p>`,
+          t('TRAIL_MAKING.CONTINUE_BUTTON_INLINE'),
+          () => {
+            endTrial();
+          },
+          '#4a90e2',
+        );
+        return;
+      }
+
       showFeedbackPanel(
         `<p style="color:#DC143C;font-weight:700;">${t('TRAIL_MAKING.PRACTICE_TRIAL_ERROR')}</p><p>${t('TRAIL_MAKING.PRACTICE_TRIAL_RETRY_PROMPT')}</p>`,
         t('TRAIL_MAKING.RETRY_BUTTON'),
         () => {
-          resetAttempt();
+          endTrial();
         },
         '#4a90e2',
       );
