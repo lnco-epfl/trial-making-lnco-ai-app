@@ -15,7 +15,13 @@ import { run } from '../experiment/experiment';
 
 export const ExperimentLoader: FC = () => {
   const settings = useSettings();
-  const { memberId } = useLocalContext();
+  const localContext = useLocalContext();
+  const { memberId } = localContext;
+  const hostScaleRaw = localContext.screenCalibration?.scale;
+  const hostScale =
+    typeof hostScaleRaw === 'number' && Number.isFinite(hostScaleRaw)
+      ? hostScaleRaw
+      : 1;
   const { data: appContextData } = hooks.useAppContext();
   let participantName = '';
 
@@ -74,6 +80,7 @@ export const ExperimentLoader: FC = () => {
             settings,
             results: experimentResultsAppData,
             participantName,
+            screenScale: hostScale,
           },
           // eslint-disable-next-line @typescript-eslint/no-shadow
           updateData: (data, settings) => updateData(data, settings),
@@ -95,6 +102,7 @@ export const ExperimentLoader: FC = () => {
             settings,
             results: experimentResultsAppData,
             participantName,
+            screenScale: hostScale,
           },
           // eslint-disable-next-line @typescript-eslint/no-shadow
           updateData: (data, settings) => updateData(data, settings),
@@ -102,7 +110,13 @@ export const ExperimentLoader: FC = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [experimentResultsAppData, setExperimentResult, settings, status]);
+  }, [
+    experimentResultsAppData,
+    hostScale,
+    setExperimentResult,
+    settings,
+    status,
+  ]);
 
   if (completedContent) {
     return completedContent;

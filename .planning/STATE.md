@@ -75,3 +75,9 @@ None.
 Last session: 2026-03-25T14:13:45.489Z
 Stopped at: Completed 01-patient-instructions-03-PLAN.md
 Resume file: None
+
+## Quick Tasks Completed
+
+| Quick ID | Date | Description | Artifacts |
+|-------|-------|-------|----------|
+| 260325-okn | 2026-03-25 | Enforce field scaling as min(host scale, screen fit) for Trail Making geometry | `.planning/quick/260325-okn-screen-calibration-enforce-field-scaling/` |

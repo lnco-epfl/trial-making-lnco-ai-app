@@ -40,3 +40,5 @@ yarn-debug.log*
 cypress/screenshots/
 cypress/videos/
 cypress/downloads/
+
+.claude

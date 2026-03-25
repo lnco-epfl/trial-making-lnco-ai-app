@@ -51,6 +51,7 @@ export async function run({
     settings: AllSettingsType;
     results: ExperimentResult;
     participantName: string;
+    screenScale?: number;
   };
   updateData: (data: DataCollection, settings: AllSettingsType) => void;
 }): Promise<JsPsych> {
@@ -201,7 +202,12 @@ export async function run({
   // Practice 1 (numbers 1-8)
   if (state.isStageEnabled('practice1')) {
     timeline.push({
-      timeline: buildPractice1(state, updateDataWithSettings, jsPsych),
+      timeline: buildPractice1(
+        state,
+        updateDataWithSettings,
+        jsPsych,
+        input.screenScale,
+      ),
       on_timeline_start() {
         if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.1;
       },
@@ -211,7 +217,12 @@ export async function run({
   // Task 1 (numbers 1-25)
   if (state.isStageEnabled('task1')) {
     timeline.push({
-      timeline: buildTask1(state, updateDataWithSettings, jsPsych),
+      timeline: buildTask1(
+        state,
+        updateDataWithSettings,
+        jsPsych,
+        input.screenScale,
+      ),
       on_timeline_start() {
         if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.3;
       },
@@ -221,7 +232,12 @@ export async function run({
   // Practice 2 (numbers + letters 1-D)
   if (state.isStageEnabled('practice2')) {
     timeline.push({
-      timeline: buildPractice2(state, updateDataWithSettings, jsPsych),
+      timeline: buildPractice2(
+        state,
+        updateDataWithSettings,
+        jsPsych,
+        input.screenScale,
+      ),
       on_timeline_start() {
         if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.6;
       },
@@ -231,7 +247,12 @@ export async function run({
   // Task 2 (numbers + letters 1-13)
   if (state.isStageEnabled('task2')) {
     timeline.push({
-      timeline: buildTask2(state, updateDataWithSettings, jsPsych),
+      timeline: buildTask2(
+        state,
+        updateDataWithSettings,
+        jsPsych,
+        input.screenScale,
+      ),
       on_timeline_start() {
         if (jsPsych.progressBar) jsPsych.progressBar.progress = 0.8;
       },
