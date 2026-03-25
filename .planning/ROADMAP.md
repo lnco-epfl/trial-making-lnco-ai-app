@@ -26,7 +26,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Setting `?lang=fr` displays the full French instruction text; `?lang=en` displays the full English text throughout
   3. Numbers-only (Part A) and numbers+letters (Part B) variants each show clearly differentiated instructions that explain what is expected for that variant
   4. A non-technical user reading the instructions can identify what to click, in what order, without any additional guidance
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Update TRAIL_MAKING i18n keys in en.json and fr.json with neuropsychologist-authored text
+- [ ] 01-02-PLAN.md — Extend Start/End circle labels to all stages in stimulus plugin
+- [ ] 01-03-PLAN.md — Wire new i18n keys into introduction/practice/task screens; implement conditional retry and review-button logic
+
 **Context**: `.planning/phases/01-patient-instructions/1-CONTEXT.md`
 
 **UI hint**: yes
@@ -51,5 +57,5 @@ Phases execute in numeric order: 1 → 2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Patient Instructions | 0/? | Not started | - |
+| 1. Patient Instructions | 0/3 | Not started | - |
 | 2. Screen Calibration | 0/? | Not started | - |
