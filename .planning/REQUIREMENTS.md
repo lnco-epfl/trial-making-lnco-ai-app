@@ -24,6 +24,7 @@
 - [ ] **CAL-07**: Graasp dependencies updated to account-era fork versions (`@graasp/apps-query-client`, `@graasp/sdk`, `@graasp/ui`) with identity compatibility shim (`accountId ?? memberId`)
 - [ ] **CAL-08**: Mock DB name bumped in `src/main.tsx` to prevent Dexie schema migration errors after SDK upgrade
 - [ ] **CAL-09**: TypeScript type-check (`yarn tsc --noEmit`) and build (`yarn build`) pass after all changes
+- [ ] **CAL-10**: The Trail Making field always fits entirely within the visible viewport (no scrolling required) — the effective circle scale is `min(calibrationScale, maxFitScale)` where `maxFitScale` is the largest scale at which all circles still fit within the available area (viewport minus progress bar height). If the calibration scale would overflow the screen, circles are scaled down to fit.
 
 ## Out of Scope
 
@@ -52,12 +53,13 @@
 | CAL-07 | Phase 2 | Pending |
 | CAL-08 | Phase 2 | Pending |
 | CAL-09 | Phase 2 | Pending |
+| CAL-10 | Phase 2 | Pending |
 
 **Coverage:**
-- v1 requirements: 14 total
-- Mapped to phases: 14
+- v1 requirements: 15 total
+- Mapped to phases: 15
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-25*
-*Last updated: 2026-03-25 after initialization*
+*Last updated: 2026-03-25 after roadmap creation*
