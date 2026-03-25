@@ -6,7 +6,48 @@ import { AllSettingsType } from '@/modules/context/SettingsContext';
 import { ExperimentState } from '../jspsych/experiment-state-class';
 import i18n from '../jspsych/i18n';
 import TrailMakingStimulusPlugin from '../trials/trail-making-stimulus-trial';
+import { PRACTICE1_FIELD, PRACTICE2_FIELD } from '../utils/constants';
 import { Timeline } from '../utils/types';
+
+const PREVIEW_WIDTH = 520;
+const PREVIEW_HEIGHT = 300;
+
+const renderPracticePreview = (
+  field: typeof PRACTICE1_FIELD,
+  startLabel: string,
+  endLabel: string,
+): string => {
+  const circles = field.targets
+    .map((target) => {
+      const x = (target.x / 100) * PREVIEW_WIDTH;
+      const y = (target.y / 100) * PREVIEW_HEIGHT;
+      const isStart = target.label === startLabel;
+      const isEnd = target.label === endLabel;
+      let badge = '';
+
+      if (isStart) {
+        badge = `<text x="${x}" y="${y + 28}" class="preview-badge preview-start">${i18n.t('TRAIL_MAKING.START_LABEL')}</text>`;
+      } else if (isEnd) {
+        badge = `<text x="${x}" y="${y + 28}" class="preview-badge preview-end">${i18n.t('TRAIL_MAKING.END_LABEL')}</text>`;
+      }
+
+      return `
+        <circle cx="${x}" cy="${y}" r="15" class="preview-circle"></circle>
+        <text x="${x}" y="${y + 5}" class="preview-label">${target.label}</text>
+        ${badge}
+      `;
+    })
+    .join('');
+
+  return `
+    <div class="practice-preview" aria-hidden="true">
+      <svg class="practice-preview-svg" viewBox="0 0 ${PREVIEW_WIDTH} ${PREVIEW_HEIGHT}" preserveAspectRatio="xMidYMid meet">
+        <rect x="0" y="0" width="${PREVIEW_WIDTH}" height="${PREVIEW_HEIGHT}" class="preview-bg"></rect>
+        ${circles}
+      </svg>
+    </div>
+  `;
+};
 
 /**
  * Build practice stage 1 (numbers 1–8)
@@ -39,6 +80,7 @@ export const buildPractice1 = (
     stimulus: `
       <div class="trail-making-stage-intro">
         <p style="white-space: pre-line;">${i18n.t('TRAIL_MAKING.PRACTICE1_INTRO')}</p>
+        ${renderPracticePreview(PRACTICE1_FIELD, '1', '8')}
         <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_BEGIN')}</p>
       </div>
     `,
@@ -92,6 +134,7 @@ export const buildPractice1 = (
         stimulus: `
           <div class="trail-making-stage-intro">
             <p style="white-space: pre-line;">${i18n.t('TRAIL_MAKING.PRACTICE1_INTRO')}</p>
+            ${renderPracticePreview(PRACTICE1_FIELD, '1', '8')}
             <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_BEGIN')}</p>
           </div>
         `,
@@ -166,6 +209,7 @@ export const buildPractice2 = (
     stimulus: `
       <div class="trail-making-stage-intro">
         <p style="white-space: pre-line;">${i18n.t('TRAIL_MAKING.PRACTICE2_INTRO')}</p>
+        ${renderPracticePreview(PRACTICE2_FIELD, '1', 'D')}
         <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_BEGIN')}</p>
       </div>
     `,
@@ -219,6 +263,7 @@ export const buildPractice2 = (
         stimulus: `
           <div class="trail-making-stage-intro">
             <p style="white-space: pre-line;">${i18n.t('TRAIL_MAKING.PRACTICE2_INTRO')}</p>
+            ${renderPracticePreview(PRACTICE2_FIELD, '1', 'D')}
             <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_BEGIN')}</p>
           </div>
         `,
