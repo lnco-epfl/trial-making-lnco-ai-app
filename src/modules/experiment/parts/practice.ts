@@ -13,9 +13,9 @@ import { Timeline } from '../utils/types';
  *
  * Timeline structure:
  *   1. Intro screen (neuropsychologist-authored instruction text)
- *   2. Stimulus trial — 1st attempt (review button shown)
- *   3. Retry message screen (conditional: shown if errors >= 1 OR review button clicked)
- *   4. Re-intro screen + 2nd attempt stimulus (conditional: same condition; no review button)
+ *   2. Stimulus trial — 1st attempt
+ *   3. Retry message screen (conditional: shown if errors >= 1)
+ *   4. Re-intro screen + 2nd attempt stimulus (conditional: same condition)
  *   5. Proceed message screen (always shown)
  */
 export const buildPractice1 = (
@@ -30,8 +30,6 @@ export const buildPractice1 = (
     return timeline;
   }
 
-  // Tracks whether the review button was clicked (forces 2nd attempt path)
-  let isSecondAttempt = false;
   // Tracks whether the 1st attempt had any errors
   let hadErrors = false;
 
@@ -47,7 +45,7 @@ export const buildPractice1 = (
     choices: [' '],
   };
 
-  // --- 1st attempt stimulus (review button shown) ---
+  // --- 1st attempt stimulus ---
   const firstAttemptStimulus = {
     type: TrailMakingStimulusPlugin,
     stage: 'practice1',
@@ -55,32 +53,6 @@ export const buildPractice1 = (
     provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
     screen_scale: screenScale,
-    on_load: () => {
-      const displayEl =
-        document.getElementById('jspsych-display-element') ?? document.body;
-      const reviewBtn = document.createElement('button');
-      reviewBtn.id = 'practice1-review-btn';
-      reviewBtn.textContent = i18n.t('TRAIL_MAKING.PRACTICE1_REVIEW_BUTTON');
-      reviewBtn.style.cssText = `
-        display: block;
-        margin: 12px auto 0;
-        padding: 10px 20px;
-        font-size: 0.95em;
-        cursor: pointer;
-        background-color: transparent;
-        color: #4a90e2;
-        border: 1px solid #4a90e2;
-        border-radius: 4px;
-      `;
-      reviewBtn.addEventListener('click', () => {
-        isSecondAttempt = true;
-        reviewBtn.remove();
-        if (jsPsych) {
-          jsPsych.finishTrial({ stage: 'practice1', reviewRequested: true });
-        }
-      });
-      displayEl.appendChild(reviewBtn);
-    },
     on_finish: () => {
       if (updateData && jsPsych) {
         updateData(jsPsych.data.get(), state.getAllSettings());
@@ -109,10 +81,10 @@ export const buildPractice1 = (
         choices: [' '],
       },
     ],
-    conditional_function: () => isSecondAttempt || hadErrors,
+    conditional_function: () => hadErrors,
   };
 
-  // --- Re-intro screen + 2nd attempt (no review button) ---
+  // --- Re-intro screen + 2nd attempt ---
   const retryBlock = {
     timeline: [
       {
@@ -139,7 +111,7 @@ export const buildPractice1 = (
         },
       },
     ],
-    conditional_function: () => isSecondAttempt || hadErrors,
+    conditional_function: () => hadErrors,
   };
 
   // --- Proceed message screen (always shown after practice completes) ---
@@ -168,9 +140,9 @@ export const buildPractice1 = (
  *
  * Timeline structure:
  *   1. Intro screen (neuropsychologist-authored instruction text)
- *   2. Stimulus trial — 1st attempt (review button shown)
- *   3. Retry message screen (conditional: shown if errors >= 1 OR review button clicked)
- *   4. Re-intro screen + 2nd attempt stimulus (conditional: same condition; no review button)
+ *   2. Stimulus trial — 1st attempt
+ *   3. Retry message screen (conditional: shown if errors >= 1)
+ *   4. Re-intro screen + 2nd attempt stimulus (conditional: same condition)
  *   5. Proceed message screen (always shown)
  */
 export const buildPractice2 = (
@@ -185,8 +157,6 @@ export const buildPractice2 = (
     return timeline;
   }
 
-  // Tracks whether the review button was clicked (forces 2nd attempt path)
-  let isSecondAttempt = false;
   // Tracks whether the 1st attempt had any errors
   let hadErrors = false;
 
@@ -202,7 +172,7 @@ export const buildPractice2 = (
     choices: [' '],
   };
 
-  // --- 1st attempt stimulus (review button shown) ---
+  // --- 1st attempt stimulus ---
   const firstAttemptStimulus = {
     type: TrailMakingStimulusPlugin,
     stage: 'practice2',
@@ -210,32 +180,6 @@ export const buildPractice2 = (
     provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
     screen_scale: screenScale,
-    on_load: () => {
-      const displayEl =
-        document.getElementById('jspsych-display-element') ?? document.body;
-      const reviewBtn = document.createElement('button');
-      reviewBtn.id = 'practice2-review-btn';
-      reviewBtn.textContent = i18n.t('TRAIL_MAKING.PRACTICE2_REVIEW_BUTTON');
-      reviewBtn.style.cssText = `
-        display: block;
-        margin: 12px auto 0;
-        padding: 10px 20px;
-        font-size: 0.95em;
-        cursor: pointer;
-        background-color: transparent;
-        color: #4a90e2;
-        border: 1px solid #4a90e2;
-        border-radius: 4px;
-      `;
-      reviewBtn.addEventListener('click', () => {
-        isSecondAttempt = true;
-        reviewBtn.remove();
-        if (jsPsych) {
-          jsPsych.finishTrial({ stage: 'practice2', reviewRequested: true });
-        }
-      });
-      displayEl.appendChild(reviewBtn);
-    },
     on_finish: () => {
       if (updateData && jsPsych) {
         updateData(jsPsych.data.get(), state.getAllSettings());
@@ -264,10 +208,10 @@ export const buildPractice2 = (
         choices: [' '],
       },
     ],
-    conditional_function: () => isSecondAttempt || hadErrors,
+    conditional_function: () => hadErrors,
   };
 
-  // --- Re-intro screen + 2nd attempt (no review button) ---
+  // --- Re-intro screen + 2nd attempt ---
   const retryBlock = {
     timeline: [
       {
@@ -294,7 +238,7 @@ export const buildPractice2 = (
         },
       },
     ],
-    conditional_function: () => isSecondAttempt || hadErrors,
+    conditional_function: () => hadErrors,
   };
 
   // --- Proceed message screen (always shown after practice completes) ---
