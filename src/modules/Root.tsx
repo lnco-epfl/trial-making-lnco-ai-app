@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { ComponentProps, FC } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
@@ -26,6 +26,11 @@ import { useObjectState } from '@/utils/hooks';
 import ErrorBoundary from './ErrorBoundary';
 import i18n from './experiment/jspsych/i18n';
 import App from './main/App';
+
+type GraaspContext = ComponentProps<typeof GraaspContextDevTool>['context'];
+type SetGraaspContext = ComponentProps<
+  typeof GraaspContextDevTool
+>['setContext'];
 
 // declare the module to enable theme modification
 declare module '@mui/material/styles' {
@@ -111,8 +116,8 @@ const Root: FC = () => {
                     {import.meta.env.DEV && (
                       <GraaspContextDevTool
                         members={mockMembers}
-                        context={mockContext}
-                        setContext={setMockContext}
+                        context={mockContext as GraaspContext}
+                        setContext={setMockContext as SetGraaspContext}
                       />
                     )}
                   </WithTokenContext>

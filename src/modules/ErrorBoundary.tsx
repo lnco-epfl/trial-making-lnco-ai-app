@@ -5,6 +5,10 @@ import { ErrorFallback } from '@graasp/ui/apps';
 
 import * as Sentry from '@sentry/react';
 
+const ErrorFallbackAny = ErrorFallback as unknown as FC<
+  Record<string, unknown>
+>;
+
 const ErrorBoundary: FC<{ children?: ReactNode }> = ({ children }) => {
   const { t: tFallback } = useTranslation('ns1', {
     keyPrefix: 'ERROR_BOUNDARY.FALLBACK',
@@ -13,11 +17,12 @@ const ErrorBoundary: FC<{ children?: ReactNode }> = ({ children }) => {
     <Sentry.ErrorBoundary
       // eslint-disable-next-line react/no-unstable-nested-components
       fallback={({ error, componentStack, eventId }) => (
-        <ErrorFallback
+        <ErrorFallbackAny
           error={error}
           componentStack={componentStack}
           eventId={eventId}
           captureUserFeedback={Sentry.captureUserFeedback}
+          captureFeedback={Sentry.captureUserFeedback}
           title={tFallback('MESSAGE_TITLE')}
           formTitle={tFallback('MESSAGE_FEEDBACK')}
           nameLabel={tFallback('NAME_LABEL')}

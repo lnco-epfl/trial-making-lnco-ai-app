@@ -58,10 +58,20 @@ export const ExperimentResultsProvider: FC<{
   const { mutate: patchAppData } = mutations.usePatchAppData();
   const { mutate: deleteAppData } = mutations.useDeleteAppData();
   const localContext = useLocalContext();
-  const { permission, memberId } = localContext;
+  const { permission } = localContext;
   const actorId =
-    ('accountId' in localContext ? localContext.accountId : undefined) ??
-    memberId;
+    (
+      localContext as {
+        accountId?: string;
+        memberId?: string;
+      }
+    ).accountId ??
+    (
+      localContext as {
+        accountId?: string;
+        memberId?: string;
+      }
+    ).memberId;
 
   const isAdmin = useMemo(
     () => PermissionLevelCompare.gte(permission, PermissionLevel.Admin),
@@ -82,8 +92,24 @@ export const ExperimentResultsProvider: FC<{
               (
                 d as ExperimentResultsAppData & {
                   account?: { id?: string };
+                  member?: { id?: string };
+                  creator?: { id?: string } | null;
                 }
-              ).account?.id ?? d.member.id;
+              ).account?.id ??
+              (
+                d as ExperimentResultsAppData & {
+                  account?: { id?: string };
+                  member?: { id?: string };
+                  creator?: { id?: string } | null;
+                }
+              ).member?.id ??
+              (
+                d as ExperimentResultsAppData & {
+                  account?: { id?: string };
+                  member?: { id?: string };
+                  creator?: { id?: string } | null;
+                }
+              ).creator?.id;
             return ownerId === actorId;
           }),
       );
