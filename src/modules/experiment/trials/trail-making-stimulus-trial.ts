@@ -644,6 +644,46 @@ class TrailMakingStimulusPlugin {
       container.appendChild(circleEl);
     });
 
+    // Add start/end markers for all stages using sequence-based circle identification
+    const firstLabel = layout.sequence[0];
+    const lastLabel = layout.sequence[layout.sequence.length - 1];
+    const firstCircle = layout.circles.find((c) => c.label === firstLabel);
+    const lastCircle = layout.circles.find((c) => c.label === lastLabel);
+
+    if (firstCircle && lastCircle) {
+      const startMarker = document.createElement('div');
+      startMarker.style.cssText = `
+        position: absolute;
+        left: ${firstCircle.x}%;
+        top: calc(${firstCircle.y}% + ${circleRadius + 6}px);
+        transform: translateX(-50%);
+        font-size: 0.75em;
+        font-weight: bold;
+        color: #228B22;
+        z-index: 10;
+        white-space: nowrap;
+        pointer-events: none;
+      `;
+      startMarker.textContent = t('TRAIL_MAKING.START_LABEL');
+      container.appendChild(startMarker);
+
+      const endMarker = document.createElement('div');
+      endMarker.style.cssText = `
+        position: absolute;
+        left: ${lastCircle.x}%;
+        top: calc(${lastCircle.y}% + ${circleRadius + 6}px);
+        transform: translateX(-50%);
+        font-size: 0.75em;
+        font-weight: bold;
+        color: #DC143C;
+        z-index: 10;
+        white-space: nowrap;
+        pointer-events: none;
+      `;
+      endMarker.textContent = t('TRAIL_MAKING.END_LABEL');
+      container.appendChild(endMarker);
+    }
+
     // Add instruction text
     const instructionDiv = document.createElement('div');
     instructionDiv.className = 'trail-making-instruction';
@@ -676,38 +716,6 @@ class TrailMakingStimulusPlugin {
         onDoneClick();
       });
       displayElement.appendChild(doneButton);
-    }
-
-    // Add start/end markers if practice
-    if (stage === 'practice1' || stage === 'practice2') {
-      const firstCircle = layout.circles[0];
-      const lastCircle = layout.circles[layout.circles.length - 1];
-
-      const startMarker = document.createElement('div');
-      startMarker.style.cssText = `
-        position: absolute;
-        left: ${firstCircle.x}%;
-        top: calc(${firstCircle.y}% - 50px);
-        transform: translateX(-50%);
-        font-weight: bold;
-        color: green;
-        z-index: 10;
-      `;
-      startMarker.textContent = 'START';
-      container.appendChild(startMarker);
-
-      const endMarker = document.createElement('div');
-      endMarker.style.cssText = `
-        position: absolute;
-        left: ${lastCircle.x}%;
-        top: calc(${lastCircle.y}% + 50px);
-        transform: translateX(-50%);
-        font-weight: bold;
-        color: red;
-        z-index: 10;
-      `;
-      endMarker.textContent = 'END';
-      container.appendChild(endMarker);
     }
   }
 }
