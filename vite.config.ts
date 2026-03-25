@@ -43,7 +43,8 @@ export default ({ mode }: { mode: string }): UserConfigExport => {
         : checker({
             typescript: true,
             eslint: {
-              lintCommand: 'eslint "src/**/*.{ts,tsx}"',
+              lintCommand:
+                'eslint --resolve-plugins-relative-to . "src/**/*.{ts,tsx}"',
             },
           }),
       react(),
