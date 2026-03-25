@@ -81,7 +81,7 @@ Resume file: None
 
 ## Quick Tasks Completed
 
-| ID         | Description                                                                                  | Status   | Completed  |
-| ---------- | -------------------------------------------------------------------------------------------- | -------- | ---------- |
-| 260325-n6g | Fix instruction UI issues (hard-coded English, duplicate review button, margins/readability) | Complete | 2026-03-25 |
+| ID         | Description                                                                                      | Status   | Completed  |
+| ---------- | ------------------------------------------------------------------------------------------------ | -------- | ---------- |
+| 260325-n6g | Fix instruction UI issues (hard-coded English, duplicate review button, margins/readability)     | Complete | 2026-03-25 |
 | 260325-ncg | Practice retry UX: first-attempt failure returns to instructions; second attempt always continue | Complete | 2026-03-25 |

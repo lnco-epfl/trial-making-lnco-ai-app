@@ -58,20 +58,10 @@ export const ExperimentResultsProvider: FC<{
   const { mutate: patchAppData } = mutations.usePatchAppData();
   const { mutate: deleteAppData } = mutations.useDeleteAppData();
   const localContext = useLocalContext();
-  const { permission } = localContext;
-  const actorId =
-    (
-      localContext as {
-        accountId?: string;
-        memberId?: string;
-      }
-    ).accountId ??
-    (
-      localContext as {
-        accountId?: string;
-        memberId?: string;
-      }
-    ).memberId;
+  const { permission, accountId } = localContext as {
+    permission: PermissionLevel;
+    accountId: string;
+  };
 
   const isAdmin = useMemo(
     () => PermissionLevelCompare.gte(permission, PermissionLevel.Admin),
@@ -88,33 +78,16 @@ export const ExperimentResultsProvider: FC<{
         sortBy(allIns, ['createdAt'])
           .reverse()
           .find((d) => {
-            const ownerId =
-              (
-                d as ExperimentResultsAppData & {
-                  account?: { id?: string };
-                  member?: { id?: string };
-                  creator?: { id?: string } | null;
-                }
-              ).account?.id ??
-              (
-                d as ExperimentResultsAppData & {
-                  account?: { id?: string };
-                  member?: { id?: string };
-                  creator?: { id?: string } | null;
-                }
-              ).member?.id ??
-              (
-                d as ExperimentResultsAppData & {
-                  account?: { id?: string };
-                  member?: { id?: string };
-                  creator?: { id?: string } | null;
-                }
-              ).creator?.id;
-            return ownerId === actorId;
+            const ownerId = (
+              d as ExperimentResultsAppData & {
+                account?: { id?: string };
+              }
+            ).account?.id;
+            return ownerId === accountId;
           }),
       );
     }
-  }, [isSuccess, data, actorId]);
+  }, [isSuccess, data, accountId]);
 
   useEffect(() => {
     if (isSuccess && experimentResultsAppData) {

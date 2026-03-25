@@ -10,6 +10,7 @@ completed: 2026-03-25
 Implemented screen calibration end-to-end from context parsing to trial rendering.
 
 ## Completed
+
 - Added `src/utils/screenCalibration.ts` parser/validator.
 - `ExperimentLoader` now reads `screenCalibration` from local context and passes it to `run()`.
 - `run()` now prioritizes calibration font size and passes calibration scale to stage builders.
@@ -23,8 +24,10 @@ Implemented screen calibration end-to-end from context parsing to trial renderin
 - Updated Graasp dependencies to LNCO.ai forks in `package.json` and refreshed `yarn.lock`.
 
 ## Automated Validation
+
 - `yarn tsc --noEmit`: PASS
 - `yarn build`: PASS
 
 ## Notes
+
 - `yarn install` currently reports an `EPERM` unlink error on `node_modules/vite/.../esbuild.exe` in this environment, but lockfile resolution updates and both type-check/build validations are successful.
