@@ -7,10 +7,10 @@
 
 ### Instructions (Phase 1)
 
-- [ ] **INSTR-01**: All instruction screens (welcome, task overview, how-to, practice intro) display the neuropsychologist-authored English text verbatim from `docs/20260210 - Trail Making Task Instructions_JP_Clean_Reorganised.docx`
+- [x] **INSTR-01**: All instruction screens (welcome, task overview, how-to, practice intro) display the neuropsychologist-authored English text verbatim from `docs/20260210 - Trail Making Task Instructions_JP_Clean_Reorganised.docx`
 - [ ] **INSTR-02**: All instruction screens display the neuropsychologist-authored French text verbatim from the same document
 - [ ] **INSTR-03**: Instruction text is appropriate for elderly (60–70 yr) PD patients with limited computer experience — simple vocabulary, no jargon, no assumed familiarity with digital interfaces
-- [ ] **INSTR-04**: Both task variants (numbers-only and numbers+letters) have distinct, clearly differentiated instructions
+- [x] **INSTR-04**: Both task variants (numbers-only and numbers+letters) have distinct, clearly differentiated instructions
 - [ ] **INSTR-05**: Language selection (`?lang=en` / `?lang=fr`) correctly switches all instruction text
 
 ### Screen Calibration (Phase 2)
@@ -39,10 +39,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INSTR-01 | Phase 1 | Pending |
+| INSTR-01 | Phase 1 | Complete |
 | INSTR-02 | Phase 1 | Pending |
 | INSTR-03 | Phase 1 | Pending |
-| INSTR-04 | Phase 1 | Pending |
+| INSTR-04 | Phase 1 | Complete |
 | INSTR-05 | Phase 1 | Pending |
 | CAL-01 | Phase 2 | Pending |
 | CAL-02 | Phase 2 | Pending |
