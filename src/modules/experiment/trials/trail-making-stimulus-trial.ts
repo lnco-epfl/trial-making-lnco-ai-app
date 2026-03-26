@@ -66,15 +66,23 @@ const MAX_FIELD_HEIGHT = Math.max(
 );
 
 /**
- * Target height in vh for the largest field
+ * Baseline height in px for the tallest field at scale = 1.
+ * Derived from the LNCO.ai calibration convention: 10 cm = 380 px → 1 cm = 38 px → 22 cm = 836 px.
  */
-const TARGET_MAX_HEIGHT_VH = 80;
+const BASE_HEIGHT_PX = 836;
+
+/**
+ * Fixed vertical reserve for UI chrome (progress bar + instruction text + done button + margins).
+ * ~40px progress bar + ~35px instruction + ~60px button + margins ≈ 200px.
+ */
+const UI_RESERVE_PX = 200;
 
 const MIN_CIRCLE_RADIUS_PX = 8;
 
 /**
- * Calculate scaled dimensions for a given stage
- * The largest field will be TARGET_MAX_HEIGHT_VH, others scale proportionally
+ * Calculate scaled dimensions for a given stage.
+ * The tallest field renders at 22 cm (836 px) at scale = 1; shorter fields scale proportionally.
+ * The result is capped so the field never exceeds the available viewport height.
  */
 const getFieldDimensions = (
   stage: TrailMakingStage,
@@ -85,37 +93,24 @@ const getFieldDimensions = (
   const safeScale =
     Number.isFinite(requestedScale) && requestedScale > 0 ? requestedScale : 1;
 
-  const viewportWidthPx = Math.max(window.innerWidth, 320);
-  const viewportHeightPx = Math.max(window.innerHeight, 320);
-  const progressBarHeightPx =
-    document.getElementById('jspsych-progressbar-container')?.offsetHeight ??
-    36;
+  const capHeightPx = Math.max(window.innerHeight - UI_RESERVE_PX, 220);
+  const capWidthPx = Math.max(window.innerWidth - 32, 220);
 
-  // Reserve enough space to avoid scrolling: instruction + controls + margins.
-  const reservedVerticalPx = progressBarHeightPx + 190;
-  const availableWidthPx = Math.max(viewportWidthPx - 32, 220);
-  const availableHeightPx = Math.max(
-    viewportHeightPx - reservedVerticalPx,
-    220,
-  );
-
-  const baseMaxHeightPx = (TARGET_MAX_HEIGHT_VH / 100) * viewportHeightPx;
-  const basePxPerUnit = baseMaxHeightPx / MAX_FIELD_HEIGHT;
-
+  const basePxPerUnit = BASE_HEIGHT_PX / MAX_FIELD_HEIGHT;
   const requestedWidthPx = fieldWidth * basePxPerUnit * safeScale;
   const requestedHeightPx = fieldHeight * basePxPerUnit * safeScale;
 
+  // Shrink to fit the viewport cap if needed; never expand beyond the requested size.
   const fitScale = Math.min(
-    availableWidthPx / requestedWidthPx,
-    availableHeightPx / requestedHeightPx,
+    capWidthPx / requestedWidthPx,
+    capHeightPx / requestedHeightPx,
     1,
   );
-  const effectiveScale = safeScale * fitScale;
 
   return {
     widthPx: requestedWidthPx * fitScale,
     heightPx: requestedHeightPx * fitScale,
-    effectiveScale,
+    effectiveScale: safeScale * fitScale,
   };
 };
 
@@ -656,7 +651,7 @@ class TrailMakingStimulusPlugin {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2em;
+        font-size: ${Math.round(effectiveCircleRadius * 0.8)}px;
         font-weight: bold;
         cursor: pointer;
         user-select: none;
