@@ -81,3 +81,4 @@ Resume file: None
 | Quick ID | Date | Description | Artifacts |
 |-------|-------|-------|----------|
 | 260325-okn | 2026-03-25 | Enforce field scaling as min(host scale, screen fit) for Trail Making geometry | `.planning/quick/260325-okn-screen-calibration-enforce-field-scaling/` |
+| 260330-f43 | 2026-03-30 | Retry flow returns to instruction start before second practice attempt | `.planning/quick/260330-f43-retry-button-after-training-should-retur/` |

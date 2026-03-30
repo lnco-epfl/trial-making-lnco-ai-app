@@ -21,6 +21,7 @@ export type TrailMakingParametersType = {
   provide_feedback: boolean;
   circle_radius: number;
   screen_scale?: number;
+  retry_attempt?: boolean;
 };
 
 export type TrailMakingDataType = {
@@ -148,6 +149,11 @@ const info = {
       default: 1,
       description: 'Host-provided screen calibration scale',
     },
+    retry_attempt: {
+      type: ParameterType.BOOL,
+      default: false,
+      description: 'Whether this trial is the second practice retry attempt',
+    },
   },
 };
 
@@ -179,6 +185,7 @@ class TrailMakingStimulusPlugin {
       provide_feedback: boolean;
       circle_radius: number;
       screen_scale?: number;
+      retry_attempt?: boolean;
     },
   ): void {
     const {
@@ -187,6 +194,7 @@ class TrailMakingStimulusPlugin {
       circle_radius: circleRadius,
       provide_feedback: provideFeedback,
       screen_scale: screenScale = 1,
+      retry_attempt: isRetryAttempt = false,
     } = trial;
     const t = i18n.t.bind(i18n);
     const { fontSize } = state.getGeneralSettings();
@@ -213,22 +221,6 @@ class TrailMakingStimulusPlugin {
     let pendingUndoLabel: string | null = null;
     const circleElements = new Map<string, HTMLElement>();
 
-    // Helper function to get instruction text
-    const getInstructionText = (): string => {
-      switch (stage) {
-        case 'practice1':
-          return 'Click the circles in order: 1, 2, 3, 4, 5, 6, 7, 8';
-        case 'task1':
-          return 'Click the circles in order: 1, 2, 3, ... 25';
-        case 'practice2':
-          return 'Click the circles in order: 1, A, 2, B, 3, C, 4, D';
-        case 'task2':
-          return 'Click the circles in order: 1, A, 2, B, 3, C, ... 13';
-        default:
-          return '';
-      }
-    };
-
     const updateDoneButton = (): void => {
       if (doneButton && usesDeferredEvaluation) {
         doneButton.disabled = false;
@@ -244,12 +236,6 @@ class TrailMakingStimulusPlugin {
         if (lastLine?.element?.parentNode) {
           lastLine.element.parentNode.removeChild(lastLine.element);
         }
-      }
-    };
-
-    const clearAllLines = (): void => {
-      while (lines.length > 0) {
-        removeLastLine();
       }
     };
 
@@ -409,23 +395,6 @@ class TrailMakingStimulusPlugin {
       }
     };
 
-    const resetAttempt = (): void => {
-      state.startStage(stage);
-      clickSequence.length = 0;
-      lastClickedLabel = null;
-      interactionLocked = false;
-      clearAllLines();
-      clearFeedbackPanel();
-      recolorAllCircles();
-
-      if (doneButton) {
-        doneButton.disabled = true;
-        doneButton.style.backgroundColor = '#cccccc';
-        doneButton.style.color = '#000';
-        doneButton.style.cursor = 'not-allowed';
-      }
-    };
-
     const showFeedbackPanel = (
       html: string,
       buttonText: string,
@@ -485,6 +454,11 @@ class TrailMakingStimulusPlugin {
     const onDoneClick = (): void => {
       if (trialEnded) return;
 
+      // Hide the done button after it's clicked
+      if (doneButton && doneButton.parentNode) {
+        doneButton.style.display = 'none';
+      }
+
       if (!isPracticeStage) {
         endTrial();
         return;
@@ -507,11 +481,17 @@ class TrailMakingStimulusPlugin {
       }
 
       highlightWrongAnswer(evaluation.wrongIndex);
+      const errorMessage = isRetryAttempt
+        ? `<p style="color:#DC143C;font-weight:700;">${t('TRAIL_MAKING.PRACTICE_TRIAL_ERROR')}</p>`
+        : `<p style="color:#DC143C;font-weight:700;">${t('TRAIL_MAKING.PRACTICE_TRIAL_ERROR')}</p><p>${t('TRAIL_MAKING.PRACTICE_TRIAL_REVIEW_INSTRUCTIONS')}</p>`;
+
       showFeedbackPanel(
-        `<p style="color:#DC143C;font-weight:700;">${t('TRAIL_MAKING.PRACTICE_TRIAL_ERROR')}</p><p>${t('TRAIL_MAKING.PRACTICE_TRIAL_RETRY_PROMPT')}</p>`,
-        t('TRAIL_MAKING.RETRY_BUTTON'),
+        errorMessage,
+        isRetryAttempt
+          ? t('TRAIL_MAKING.CONTINUE_BUTTON_INLINE')
+          : t('TRAIL_MAKING.BACK_TO_INSTRUCTIONS_BUTTON'),
         () => {
-          resetAttempt();
+          endTrial();
         },
         '#4a90e2',
       );
@@ -721,18 +701,6 @@ class TrailMakingStimulusPlugin {
       container.appendChild(endMarker);
     }
 
-    // Add instruction text
-    const instructionDiv = document.createElement('div');
-    instructionDiv.className = 'trail-making-instruction';
-    instructionDiv.style.cssText = `
-      text-align: center;
-      margin-bottom: 10px;
-      font-size: 1.2em;
-      font-weight: bold;
-    `;
-    instructionDiv.innerHTML = getInstructionText();
-
-    displayElement.appendChild(instructionDiv);
     displayElement.appendChild(container);
 
     if (usesDeferredEvaluation) {

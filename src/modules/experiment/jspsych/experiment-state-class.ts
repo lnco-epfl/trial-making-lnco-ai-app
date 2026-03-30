@@ -306,6 +306,8 @@ export class ExperimentState {
       throw new Error('No active stage');
     }
 
+    const layout = this.getCurrentLayout();
+
     const timeTaken = (Date.now() - this.state.startTime) / 1000; // Convert to seconds
 
     // Calculate errors
@@ -336,7 +338,7 @@ export class ExperimentState {
       errorsSelfCorrected,
       errorsNonSelfCorrected,
       clickSequence: this.state.clickHistory,
-      completed: true,
+      completed: this.state.currentClickIndex >= layout.sequence.length,
     };
 
     this.state.stageResults.push(result);
