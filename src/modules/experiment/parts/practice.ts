@@ -1,4 +1,3 @@
-import htmlButtonResponse from '@jspsych/plugin-html-button-response';
 import htmlKeyboardResponse from '@jspsych/plugin-html-keyboard-response';
 import type { DataCollection, JsPsych } from 'jspsych';
 
@@ -56,9 +55,8 @@ const renderPracticePreview = (
  * Timeline structure:
  *   1. Intro screen (neuropsychologist-authored instruction text)
  *   2. Stimulus trial — 1st attempt
- *   3. Retry message screen (conditional: shown if errors >= 1)
- *   4. Re-intro screen + 2nd attempt stimulus (conditional: same condition)
- *   5. Proceed message screen (always shown)
+ *   3. Re-intro screen + 2nd attempt stimulus (conditional: shown if errors >= 1)
+ *   4. Proceed message screen (always shown)
  */
 export const buildPractice1 = (
   state: ExperimentState,
@@ -96,34 +94,35 @@ export const buildPractice1 = (
     provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
     screen_scale: screenScale,
-    on_finish: () => {
+    on_finish: (trialData: {
+      completed?: boolean;
+      errorsSelfCorrected?: number;
+      errorsNonSelfCorrected?: number;
+    }) => {
       if (updateData && jsPsych) {
         updateData(jsPsych.data.get(), state.getAllSettings());
       }
+
+      // Prefer the just-finished trial payload to avoid stale/stage-wide lookups.
+      const completed = trialData?.completed;
+      const errorsSelfCorrected = trialData?.errorsSelfCorrected ?? 0;
+      const errorsNonSelfCorrected = trialData?.errorsNonSelfCorrected ?? 0;
+
+      if (typeof completed === 'boolean') {
+        hadErrors =
+          !completed || errorsSelfCorrected + errorsNonSelfCorrected > 0;
+        return;
+      }
+
       const results = state.getStageResults();
       const lastResult = results[results.length - 1];
-      if (lastResult) {
-        hadErrors =
-          lastResult.errorsNonSelfCorrected + lastResult.errorsSelfCorrected >
-          0;
-      }
+      hadErrors = Boolean(
+        lastResult &&
+          (!lastResult.completed ||
+            lastResult.errorsNonSelfCorrected + lastResult.errorsSelfCorrected >
+              0),
+      );
     },
-  };
-
-  // --- Retry message screen (shown before 2nd attempt) ---
-  const retryMessageNode = {
-    timeline: [
-      {
-        type: htmlButtonResponse,
-        stimulus: () => `
-          <div class="trail-making-feedback">
-            <p>${i18n.t('TRAIL_MAKING.PRACTICE1_RETRY_MESSAGE')}</p>
-          </div>
-        `,
-        choices: [i18n.t('TRAIL_MAKING.BACK_TO_INSTRUCTIONS_BUTTON')],
-      },
-    ],
-    conditional_function: () => hadErrors,
   };
 
   // --- Re-intro screen + 2nd attempt ---
@@ -145,6 +144,7 @@ export const buildPractice1 = (
         stage: 'practice1',
         state,
         provide_feedback: false,
+        retry_attempt: true,
         circle_radius: state.getTrailMakingSettings().circleRadius,
         screen_scale: screenScale,
         on_finish: () => {
@@ -171,7 +171,6 @@ export const buildPractice1 = (
 
   timeline.push(introScreen);
   timeline.push(firstAttemptStimulus);
-  timeline.push(retryMessageNode);
   timeline.push(retryBlock);
   timeline.push(proceedMessageScreen);
 
@@ -184,9 +183,8 @@ export const buildPractice1 = (
  * Timeline structure:
  *   1. Intro screen (neuropsychologist-authored instruction text)
  *   2. Stimulus trial — 1st attempt
- *   3. Retry message screen (conditional: shown if errors >= 1)
- *   4. Re-intro screen + 2nd attempt stimulus (conditional: same condition)
- *   5. Proceed message screen (always shown)
+ *   3. Re-intro screen + 2nd attempt stimulus (conditional: shown if errors >= 1)
+ *   4. Proceed message screen (always shown)
  */
 export const buildPractice2 = (
   state: ExperimentState,
@@ -224,34 +222,35 @@ export const buildPractice2 = (
     provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
     screen_scale: screenScale,
-    on_finish: () => {
+    on_finish: (trialData: {
+      completed?: boolean;
+      errorsSelfCorrected?: number;
+      errorsNonSelfCorrected?: number;
+    }) => {
       if (updateData && jsPsych) {
         updateData(jsPsych.data.get(), state.getAllSettings());
       }
+
+      // Prefer the just-finished trial payload to avoid stale/stage-wide lookups.
+      const completed = trialData?.completed;
+      const errorsSelfCorrected = trialData?.errorsSelfCorrected ?? 0;
+      const errorsNonSelfCorrected = trialData?.errorsNonSelfCorrected ?? 0;
+
+      if (typeof completed === 'boolean') {
+        hadErrors =
+          !completed || errorsSelfCorrected + errorsNonSelfCorrected > 0;
+        return;
+      }
+
       const results = state.getStageResults();
       const lastResult = results[results.length - 1];
-      if (lastResult) {
-        hadErrors =
-          lastResult.errorsNonSelfCorrected + lastResult.errorsSelfCorrected >
-          0;
-      }
+      hadErrors = Boolean(
+        lastResult &&
+          (!lastResult.completed ||
+            lastResult.errorsNonSelfCorrected + lastResult.errorsSelfCorrected >
+              0),
+      );
     },
-  };
-
-  // --- Retry message screen (shown before 2nd attempt) ---
-  const retryMessageNode = {
-    timeline: [
-      {
-        type: htmlButtonResponse,
-        stimulus: () => `
-          <div class="trail-making-feedback">
-            <p>${i18n.t('TRAIL_MAKING.PRACTICE2_RETRY_MESSAGE')}</p>
-          </div>
-        `,
-        choices: [i18n.t('TRAIL_MAKING.BACK_TO_INSTRUCTIONS_BUTTON')],
-      },
-    ],
-    conditional_function: () => hadErrors,
   };
 
   // --- Re-intro screen + 2nd attempt ---
@@ -273,6 +272,7 @@ export const buildPractice2 = (
         stage: 'practice2',
         state,
         provide_feedback: false,
+        retry_attempt: true,
         circle_radius: state.getTrailMakingSettings().circleRadius,
         screen_scale: screenScale,
         on_finish: () => {
@@ -299,7 +299,6 @@ export const buildPractice2 = (
 
   timeline.push(introScreen);
   timeline.push(firstAttemptStimulus);
-  timeline.push(retryMessageNode);
   timeline.push(retryBlock);
   timeline.push(proceedMessageScreen);
 
