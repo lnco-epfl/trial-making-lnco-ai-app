@@ -64,8 +64,8 @@ export const PRACTICE1_FIELD: FieldDefinition = {
     },
     {
       label: '4',
-      x: 64.64,
-      y: 25,
+      x: 71.5,
+      y: 42,
     },
     {
       label: '5',
