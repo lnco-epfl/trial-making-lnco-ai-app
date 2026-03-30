@@ -1,3 +1,4 @@
+import htmlButtonResponse from '@jspsych/plugin-html-button-response';
 import htmlKeyboardResponse from '@jspsych/plugin-html-keyboard-response';
 import type { DataCollection, JsPsych } from 'jspsych';
 
@@ -113,14 +114,13 @@ export const buildPractice1 = (
   const retryMessageNode = {
     timeline: [
       {
-        type: htmlKeyboardResponse,
+        type: htmlButtonResponse,
         stimulus: () => `
           <div class="trail-making-feedback">
             <p>${i18n.t('TRAIL_MAKING.PRACTICE1_RETRY_MESSAGE')}</p>
-            <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_CONTINUE')}</p>
           </div>
         `,
-        choices: [' '],
+        choices: [i18n.t('TRAIL_MAKING.BACK_TO_INSTRUCTIONS_BUTTON')],
       },
     ],
     conditional_function: () => hadErrors,
@@ -242,14 +242,13 @@ export const buildPractice2 = (
   const retryMessageNode = {
     timeline: [
       {
-        type: htmlKeyboardResponse,
+        type: htmlButtonResponse,
         stimulus: () => `
           <div class="trail-making-feedback">
             <p>${i18n.t('TRAIL_MAKING.PRACTICE2_RETRY_MESSAGE')}</p>
-            <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_CONTINUE')}</p>
           </div>
         `,
-        choices: [' '],
+        choices: [i18n.t('TRAIL_MAKING.BACK_TO_INSTRUCTIONS_BUTTON')],
       },
     ],
     conditional_function: () => hadErrors,

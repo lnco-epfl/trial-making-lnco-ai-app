@@ -31,6 +31,7 @@
       "PRACTICE2_REVIEW_BUTTON": "Si vous en avez besoin, cliquez ici pour revoir les instructions et faire l'entraînement une fois de plus.",
       "PRACTICE2_RETRY_MESSAGE": "OK ! Ne vous inquiétez pas, vous allez répéter l'entraînement.",
       "PRACTICE2_PROCEED_MESSAGE": "Très bien ! Vous allez maintenant commencer le test.",
+      "BACK_TO_INSTRUCTIONS_BUTTON": "Revenir aux instructions",
       "TASK2_READY_MESSAGE": "Vous voyez maintenant les chiffres et les lettres éparpillés. Le début est indiqué au 1 (Début) et la fin au 13 (Fin).\n\nComme pendant l'entraînement, reliez les cercles en alternance : d'abord un chiffre, puis une lettre, dans l'ordre croissant et alphabétique. Commencez par 1 (Début), puis A, ensuite 2, puis B, et continuez de la même manière jusqu'au 13 (Fin). Une ligne se dessinera automatiquement entre les cercles au fur et à mesure que vous les reliez.\n\n<strong>Important :</strong> Si vous faites une erreur, cliquez à nouveau sur le dernier cercle pour l'annuler, puis continuez avec la séquence correcte.\n\n<em>Travaillez aussi rapidement et précisément que possible.</em> Le temps nécessaire pour compléter le test sera enregistré.\n\nÊtes-vous prêt(e) ? Allez-y !",
       "TASK2_COMPLETE_TITLE": "Tâche 2 Terminée",
       "TASK2_COMPLETE_MESSAGE": "OK, merci, le test est maintenant terminé.",

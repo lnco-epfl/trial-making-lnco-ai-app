@@ -32,6 +32,7 @@
       "PRACTICE2_REVIEW_BUTTON": "Click here to review the instructions",
       "PRACTICE2_RETRY_MESSAGE": "OK! Don't worry, we'll repeat the training once more.",
       "PRACTICE2_PROCEED_MESSAGE": "OK! Now you'll perform the actual test.",
+      "BACK_TO_INSTRUCTIONS_BUTTON": "Back to instructions",
       "TASK2_READY_MESSAGE": "You now see numbers and letters scattered on the screen. The starting point is marked at 1 (Start) and the ending point at 13 (End).\n\nJust like during the training, <strong>connect first a number, then a letter, in increasing numerical and alphabetical order until the end</strong>. Click 1 (Start), then A, then 2, then B, and continue in the same pattern. A line will be drawn between circles as you connect them.\n\n<strong>Important:</strong> If you make a mistake, click the last circle again to reset it, then continue with the correct sequence.\n\n<em>Work as quickly and accurately as possible.</em> The time needed to complete the test will be measured.\n\nReady? Go ahead.",
       "TASK2_COMPLETE_TITLE": "Task 2 Complete",
       "TASK2_COMPLETE_MESSAGE": "OK, thank you, the test is now complete.",
