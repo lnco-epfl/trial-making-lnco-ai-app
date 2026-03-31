@@ -79,6 +79,7 @@ const BASE_HEIGHT_PX = 836;
 const UI_RESERVE_PX = 200;
 
 const MIN_CIRCLE_RADIUS_PX = 8;
+const MAIN_TASK_START_DELAY_MS = 3000;
 
 /**
  * Calculate scaled dimensions for a given stage.
@@ -199,6 +200,7 @@ class TrailMakingStimulusPlugin {
     const t = i18n.t.bind(i18n);
     const { fontSize } = state.getGeneralSettings();
     const isPracticeStage = stage === 'practice1' || stage === 'practice2';
+    const isMainTaskStage = stage === 'task1' || stage === 'task2';
     const usesDeferredEvaluation = !provideFeedback || isPracticeStage;
 
     // Reset state for this stage (in case state was modified by previous stages during timeline construction)
@@ -217,9 +219,118 @@ class TrailMakingStimulusPlugin {
     let trialEnded = false;
     let doneButton: HTMLButtonElement | null = null;
     let feedbackPanel: HTMLDivElement | null = null;
-    let interactionLocked = false;
+    let interactionLocked = isMainTaskStage;
+    let startOverlay: HTMLDivElement | null = null;
+    let startHint: HTMLParagraphElement | null = null;
+    let startGateTimeoutId: ReturnType<typeof setTimeout> | null = null;
+    let hasMainTaskStarted = !isMainTaskStage;
+    let startKeyHandler: ((event: KeyboardEvent) => void) | null = null;
     let pendingUndoLabel: string | null = null;
     const circleElements = new Map<string, HTMLElement>();
+
+    const getMainTaskInstructionText = (): string =>
+      stage === 'task1'
+        ? t('TRAIL_MAKING.TASK1_READY_MESSAGE')
+        : t('TRAIL_MAKING.TASK2_READY_MESSAGE');
+
+    const clearStartGate = (): void => {
+      if (startGateTimeoutId !== null) {
+        clearTimeout(startGateTimeoutId);
+        startGateTimeoutId = null;
+      }
+
+      if (startKeyHandler) {
+        window.removeEventListener('keydown', startKeyHandler);
+        startKeyHandler = null;
+      }
+    };
+
+    const unlockMainTask = (): void => {
+      if (hasMainTaskStarted) {
+        return;
+      }
+
+      hasMainTaskStarted = true;
+      interactionLocked = false;
+      state.markStageStartTime();
+      clearStartGate();
+
+      if (startOverlay && startOverlay.parentNode) {
+        startOverlay.parentNode.removeChild(startOverlay);
+      }
+      startOverlay = null;
+      startHint = null;
+    };
+
+    const setupMainTaskStartOverlay = (): void => {
+      startOverlay = document.createElement('div');
+      startOverlay.style.cssText = `
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -100px;
+        right: -100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.38);
+        z-index: 30;
+      `;
+
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      `;
+
+      const contentCard = document.createElement('div');
+      contentCard.style.cssText = `
+        width: 100%;
+        max-width: 980px;
+        background: rgba(255, 255, 255, 0.83);
+        border: 1px solid rgba(0, 0, 0, 0.14);
+        border-radius: 8px;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+        padding: 24px;
+      `;
+
+      const instruction = document.createElement('p');
+      instruction.style.cssText = 'white-space: pre-line; margin: 0;';
+      instruction.innerHTML = getMainTaskInstructionText();
+
+      startHint = document.createElement('p');
+      startHint.className = 'continue-prompt';
+      startHint.style.cssText = 'margin: 16px 0 0 0; display: none;';
+      startHint.textContent = t('TRAIL_MAKING.PRESS_TO_CONTINUE');
+
+      contentCard.appendChild(instruction);
+      contentCard.appendChild(startHint);
+      modal.appendChild(contentCard);
+      startOverlay.appendChild(modal);
+      displayElement.appendChild(startOverlay);
+
+      startGateTimeoutId = setTimeout(() => {
+        if (!startHint || hasMainTaskStarted) {
+          return;
+        }
+
+        startHint.style.display = 'block';
+        startKeyHandler = (event: KeyboardEvent) => {
+          if (event.code !== 'Space' && event.key !== ' ') {
+            return;
+          }
+
+          event.preventDefault();
+          unlockMainTask();
+        };
+        window.addEventListener('keydown', startKeyHandler);
+      }, MAIN_TASK_START_DELAY_MS);
+    };
 
     const updateDoneButton = (): void => {
       if (doneButton && usesDeferredEvaluation) {
@@ -435,6 +546,7 @@ class TrailMakingStimulusPlugin {
     const endTrial = (): void => {
       if (trialEnded) return;
       trialEnded = true;
+      clearStartGate();
 
       const result = state.completeStage();
 
@@ -539,6 +651,7 @@ class TrailMakingStimulusPlugin {
     // Setup display element
     const element = displayElement;
     element.className = `trail-making-trial font-${fontSize}`;
+    element.style.position = 'relative';
 
     // Get field dimensions for this stage
     const fieldDimensions = getFieldDimensions(stage, screenScale);
@@ -579,6 +692,10 @@ class TrailMakingStimulusPlugin {
         circleTarget instanceof HTMLElement
           ? (circleTarget.dataset.label ?? null)
           : null;
+
+      if (isMainTaskStage && !hasMainTaskStarted) {
+        return;
+      }
 
       frameClicks.push({
         timestamp: Date.now(),
@@ -721,6 +838,10 @@ class TrailMakingStimulusPlugin {
         onDoneClick();
       });
       displayElement.appendChild(doneButton);
+    }
+
+    if (isMainTaskStage) {
+      setupMainTaskStartOverlay();
     }
   }
 }
