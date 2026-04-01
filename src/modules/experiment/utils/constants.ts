@@ -111,8 +111,8 @@ export const PRACTICE2_FIELD: FieldDefinition = {
     },
     {
       label: 'B',
-      x: 64.64,
-      y: 25,
+      x: 71.5,
+      y: 42,
     },
     {
       label: '3',

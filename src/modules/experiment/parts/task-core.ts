@@ -24,18 +24,6 @@ export const buildTask1 = (
     return timeline;
   }
 
-  // Ready screen — full neuropsychologist-authored Part A task text
-  timeline.push({
-    type: htmlKeyboardResponse,
-    stimulus: `
-      <div class="trail-making-ready">
-        <p style="white-space: pre-line;">${i18n.t('TRAIL_MAKING.TASK1_READY_MESSAGE')}</p>
-        <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_BEGIN')}</p>
-      </div>
-    `,
-    choices: [' '],
-  });
-
   // Stimulus trial
   timeline.push({
     type: TrailMakingStimulusPlugin,
@@ -79,18 +67,6 @@ export const buildTask2 = (
   if (!state.isStageEnabled('task2')) {
     return timeline;
   }
-
-  // Ready screen — full neuropsychologist-authored Part B task text
-  timeline.push({
-    type: htmlKeyboardResponse,
-    stimulus: `
-      <div class="trail-making-ready">
-        <p style="white-space: pre-line;">${i18n.t('TRAIL_MAKING.TASK2_READY_MESSAGE')}</p>
-        <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_BEGIN')}</p>
-      </div>
-    `,
-    choices: [' '],
-  });
 
   // Stimulus trial
   timeline.push({

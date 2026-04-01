@@ -203,6 +203,14 @@ export class ExperimentState {
     this.state.startTime = Date.now();
   }
 
+  markStageStartTime(): void {
+    if (!this.state.currentStage) {
+      throw new Error('No active stage');
+    }
+
+    this.state.startTime = Date.now();
+  }
+
   getCurrentStage(): TrailMakingStage | null {
     return this.state.currentStage;
   }

@@ -70,6 +70,7 @@ body {
   align-items: center;
   height: 100%;
   padding-top: calc(var(--font-scale) * 50px);
+  box-sizing: border-box;
 }
 
 .jspsych-content {
