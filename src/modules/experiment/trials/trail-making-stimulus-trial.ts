@@ -3,7 +3,6 @@ import { JsPsych, ParameterType } from 'jspsych';
 import { CirclePosition } from '@/modules/context/SettingsContext';
 
 import {
-  ClickData,
   ExperimentState,
   TrailMakingStage,
 } from '../jspsych/experiment-state-class';
@@ -27,9 +26,11 @@ export type TrailMakingParametersType = {
 export type TrailMakingDataType = {
   stage: TrailMakingStage;
   timeTaken: number;
-  errorsSelfCorrected: number;
-  errorsNonSelfCorrected: number;
-  clickSequence: ClickData[];
+  sequenceErrorEpisodes: number;
+  correctedErrorEpisodes: number;
+  uncorrectedErrorEpisodes: number;
+  omittedTargetsAtDone: number;
+  finalSequence: Array<{ label: string; timestamp: number }>;
   frameClicks: FrameClickData[];
   completed: boolean;
 };
@@ -553,12 +554,42 @@ class TrailMakingStimulusPlugin {
 
       const result = state.completeStage();
 
+      // clickSequence is a cleaned logical path and may drop undone mistakes.
+      // Derive corrected episodes from undo bursts in raw frameClicks.
+      let correctedErrorEpisodesFromFrames = 0;
+      let previousWasUndo = false;
+
+      frameClicks.forEach((frameClick) => {
+        const isUndoCircleClick =
+          frameClick.isCircleClick &&
+          frameClick.isUndo &&
+          frameClick.targetLabel;
+
+        if (isUndoCircleClick && !previousWasUndo) {
+          correctedErrorEpisodesFromFrames += 1;
+        }
+
+        previousWasUndo = Boolean(isUndoCircleClick);
+      });
+
+      const correctedErrorEpisodes = Math.max(
+        result.correctedErrorEpisodes,
+        correctedErrorEpisodesFromFrames,
+      );
+      const sequenceErrorEpisodes =
+        correctedErrorEpisodes + result.uncorrectedErrorEpisodes;
+
       const trialData: TrailMakingDataType = {
         stage: result.stage,
         timeTaken: result.timeTaken,
-        errorsSelfCorrected: result.errorsSelfCorrected,
-        errorsNonSelfCorrected: result.errorsNonSelfCorrected,
-        clickSequence: result.clickSequence,
+        sequenceErrorEpisodes,
+        correctedErrorEpisodes,
+        uncorrectedErrorEpisodes: result.uncorrectedErrorEpisodes,
+        omittedTargetsAtDone: result.omittedTargetsAtDone,
+        finalSequence: result.clickSequence.map((click) => ({
+          label: click.label,
+          timestamp: click.timestamp,
+        })),
         frameClicks,
         completed: result.completed,
       };

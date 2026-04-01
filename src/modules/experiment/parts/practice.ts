@@ -96,8 +96,7 @@ export const buildPractice1 = (
     screen_scale: screenScale,
     on_finish: (trialData: {
       completed?: boolean;
-      errorsSelfCorrected?: number;
-      errorsNonSelfCorrected?: number;
+      sequenceErrorEpisodes?: number;
     }) => {
       if (updateData && jsPsych) {
         updateData(jsPsych.data.get(), state.getAllSettings());
@@ -105,12 +104,10 @@ export const buildPractice1 = (
 
       // Prefer the just-finished trial payload to avoid stale/stage-wide lookups.
       const completed = trialData?.completed;
-      const errorsSelfCorrected = trialData?.errorsSelfCorrected ?? 0;
-      const errorsNonSelfCorrected = trialData?.errorsNonSelfCorrected ?? 0;
+      const sequenceErrorEpisodes = trialData?.sequenceErrorEpisodes ?? 0;
 
       if (typeof completed === 'boolean') {
-        hadErrors =
-          !completed || errorsSelfCorrected + errorsNonSelfCorrected > 0;
+        hadErrors = !completed || sequenceErrorEpisodes > 0;
         return;
       }
 
@@ -118,9 +115,7 @@ export const buildPractice1 = (
       const lastResult = results[results.length - 1];
       hadErrors = Boolean(
         lastResult &&
-          (!lastResult.completed ||
-            lastResult.errorsNonSelfCorrected + lastResult.errorsSelfCorrected >
-              0),
+          (!lastResult.completed || lastResult.sequenceErrorEpisodes > 0),
       );
     },
   };
@@ -224,8 +219,7 @@ export const buildPractice2 = (
     screen_scale: screenScale,
     on_finish: (trialData: {
       completed?: boolean;
-      errorsSelfCorrected?: number;
-      errorsNonSelfCorrected?: number;
+      sequenceErrorEpisodes?: number;
     }) => {
       if (updateData && jsPsych) {
         updateData(jsPsych.data.get(), state.getAllSettings());
@@ -233,12 +227,10 @@ export const buildPractice2 = (
 
       // Prefer the just-finished trial payload to avoid stale/stage-wide lookups.
       const completed = trialData?.completed;
-      const errorsSelfCorrected = trialData?.errorsSelfCorrected ?? 0;
-      const errorsNonSelfCorrected = trialData?.errorsNonSelfCorrected ?? 0;
+      const sequenceErrorEpisodes = trialData?.sequenceErrorEpisodes ?? 0;
 
       if (typeof completed === 'boolean') {
-        hadErrors =
-          !completed || errorsSelfCorrected + errorsNonSelfCorrected > 0;
+        hadErrors = !completed || sequenceErrorEpisodes > 0;
         return;
       }
 
@@ -246,9 +238,7 @@ export const buildPractice2 = (
       const lastResult = results[results.length - 1];
       hadErrors = Boolean(
         lastResult &&
-          (!lastResult.completed ||
-            lastResult.errorsNonSelfCorrected + lastResult.errorsSelfCorrected >
-              0),
+          (!lastResult.completed || lastResult.sequenceErrorEpisodes > 0),
       );
     },
   };
