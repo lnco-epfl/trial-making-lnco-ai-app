@@ -50,6 +50,10 @@ export interface TrailMakingResult {
   timeTaken: number; // seconds
   errorsSelfCorrected: number;
   errorsNonSelfCorrected: number;
+  sequenceErrorEpisodes: number;
+  correctedErrorEpisodes: number;
+  uncorrectedErrorEpisodes: number;
+  omittedTargetsAtDone: number;
   clickSequence: ClickData[];
   completed: boolean;
 }
@@ -340,11 +344,49 @@ export class ExperimentState {
 
     errorsNonSelfCorrected = uncorrectedErrors.size;
 
+    // Episode-based scoring:
+    // one episode starts at the first wrong click after being on-track,
+    // and ends once the participant returns to the expected next target.
+    let expectedIndex = 0;
+    let inErrorEpisode = false;
+    let correctedErrorEpisodes = 0;
+
+    this.state.clickHistory.forEach((click) => {
+      const expectedLabel = layout.sequence[expectedIndex];
+
+      if (click.label === expectedLabel) {
+        expectedIndex += 1;
+        if (inErrorEpisode) {
+          correctedErrorEpisodes += 1;
+          inErrorEpisode = false;
+        }
+        return;
+      }
+
+      if (!inErrorEpisode) {
+        inErrorEpisode = true;
+      }
+    });
+
+    const uncorrectedErrorEpisodes = inErrorEpisode ? 1 : 0;
+    const sequenceErrorEpisodes =
+      correctedErrorEpisodes + uncorrectedErrorEpisodes;
+    const clickedLabels = new Set(
+      this.state.clickHistory.map((click) => click.label),
+    );
+    const omittedTargetsAtDone = layout.sequence.filter(
+      (label) => !clickedLabels.has(label),
+    ).length;
+
     const result: TrailMakingResult = {
       stage,
       timeTaken,
       errorsSelfCorrected,
       errorsNonSelfCorrected,
+      sequenceErrorEpisodes,
+      correctedErrorEpisodes,
+      uncorrectedErrorEpisodes,
+      omittedTargetsAtDone,
       clickSequence: this.state.clickHistory,
       completed: this.state.currentClickIndex >= layout.sequence.length,
     };
