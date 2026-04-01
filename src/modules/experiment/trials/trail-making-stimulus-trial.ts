@@ -79,6 +79,8 @@ const BASE_HEIGHT_PX = 836;
 const UI_RESERVE_PX = 200;
 
 const MIN_CIRCLE_RADIUS_PX = 8;
+const TASK_CIRCLE_DIAMETER_RATIO = 0.05;
+const PRACTICE_CIRCLE_DIAMETER_RATIO = 0.15;
 const MAIN_TASK_START_DELAY_MS = 3000;
 
 /**
@@ -98,9 +100,11 @@ const getFieldDimensions = (
   const capHeightPx = Math.max(window.innerHeight - UI_RESERVE_PX, 220);
   const capWidthPx = Math.max(window.innerWidth - 32, 220);
 
-  const basePxPerUnit = BASE_HEIGHT_PX / MAX_FIELD_HEIGHT;
-  const requestedWidthPx = fieldWidth * basePxPerUnit * safeScale;
-  const requestedHeightPx = fieldHeight * basePxPerUnit * safeScale;
+  // Apply calibration scale directly to the 836px baseline first.
+  const calibratedBaseHeightPx = BASE_HEIGHT_PX * safeScale;
+  const basePxPerUnit = calibratedBaseHeightPx / MAX_FIELD_HEIGHT;
+  const requestedWidthPx = fieldWidth * basePxPerUnit;
+  const requestedHeightPx = fieldHeight * basePxPerUnit;
 
   // Shrink to fit the viewport cap if needed; never expand beyond the requested size.
   const fitScale = Math.min(
@@ -192,7 +196,6 @@ class TrailMakingStimulusPlugin {
     const {
       state,
       stage,
-      circle_radius: circleRadius,
       provide_feedback: provideFeedback,
       screen_scale: screenScale = 1,
       retry_attempt: isRetryAttempt = false,
@@ -655,9 +658,13 @@ class TrailMakingStimulusPlugin {
 
     // Get field dimensions for this stage
     const fieldDimensions = getFieldDimensions(stage, screenScale);
+    const circleDiameterRatio = isPracticeStage
+      ? PRACTICE_CIRCLE_DIAMETER_RATIO
+      : TASK_CIRCLE_DIAMETER_RATIO;
+
     const effectiveCircleRadius = Math.max(
       MIN_CIRCLE_RADIUS_PX,
-      Math.round(circleRadius * fieldDimensions.effectiveScale),
+      Math.round((fieldDimensions.heightPx * circleDiameterRatio) / 2),
     );
 
     // Create container
