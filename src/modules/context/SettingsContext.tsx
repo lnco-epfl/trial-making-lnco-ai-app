@@ -7,6 +7,7 @@ export type GeneralSettingsType = {
   fontSize: 'small' | 'normal' | 'large' | 'extra-large';
   skipInstructions: boolean;
   skipPractice: boolean;
+  language: 'en' | 'fr';
 };
 
 export type CirclePosition = {
@@ -77,6 +78,7 @@ const defaultSettingsValues: AllSettingsType = {
     fontSize: 'normal',
     skipInstructions: false,
     skipPractice: false,
+    language: 'en',
   },
   trailMakingSettings: {
     enablePractice1: true,
