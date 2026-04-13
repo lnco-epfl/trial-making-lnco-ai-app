@@ -14,7 +14,7 @@ import { DataCollection, JsPsych, initJsPsych } from 'jspsych';
 import { ExperimentResult } from '../config/appResults';
 import { AllSettingsType, NextStepSettings } from '../context/SettingsContext';
 import { ExperimentState } from './jspsych/experiment-state-class';
-import './jspsych/i18n';
+import i18n from './jspsych/i18n';
 import { buildIntroduction } from './parts/introduction';
 import { buildPractice1, buildPractice2 } from './parts/practice';
 import { buildTask1, buildTask2 } from './parts/task-core';
@@ -55,6 +55,9 @@ export async function run({
   };
   updateData: (data: DataCollection, settings: AllSettingsType) => void;
 }): Promise<JsPsych> {
+  // Apply language setting before any timeline content is built
+  i18n.changeLanguage(input.settings.generalSettings.language);
+
   // Initialize experiment state
   const state = new ExperimentState(input.settings);
 
