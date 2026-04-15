@@ -71,17 +71,17 @@ const MAX_FIELD_HEIGHT = Math.max(
  * Baseline height in px for the tallest field at scale = 1.
  * Derived from the LNCO.ai calibration convention: 10 cm = 380 px → 1 cm = 38 px → 22 cm = 836 px.
  */
-const BASE_HEIGHT_PX = 836;
+const BASE_HEIGHT_PX = 1000;
 
 /**
  * Fixed vertical reserve for UI chrome (progress bar + instruction text + done button + margins).
  * ~40px progress bar + ~35px instruction + ~60px button + margins ≈ 200px.
  */
-const UI_RESERVE_PX = 200;
+const UI_RESERVE_PX = 150;
 
 const MIN_CIRCLE_RADIUS_PX = 8;
-const TASK_CIRCLE_DIAMETER_RATIO = 0.05;
-const PRACTICE_CIRCLE_DIAMETER_RATIO = 0.15;
+const TASK_CIRCLE_DIAMETER_RATIO = 0.07;
+const PRACTICE_CIRCLE_DIAMETER_RATIO = 0.17;
 const MAIN_TASK_START_DELAY_MS = 3000;
 
 /**
@@ -786,7 +786,7 @@ class TrailMakingStimulusPlugin {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: ${Math.round(effectiveCircleRadius * 0.8)}px;
+        font-size: ${Math.round(effectiveCircleRadius * 0.9)}px;
         font-weight: bold;
         cursor: pointer;
         user-select: none;

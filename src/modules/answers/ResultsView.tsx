@@ -128,14 +128,14 @@ const ResultsView: FC = () => {
   return (
     <Stack spacing={2}>
       <Stack justifyContent="space-between" direction="row">
-        <Typography variant="h3">Flanker Task Results</Typography>
+        <Typography variant="h3">TMT Task Results</Typography>
         <MuiStack direction="row" spacing={1}>
           <Button
             variant="text"
             onClick={() => {
               downloadJson(
                 allData(),
-                `flanker_all_${format(new Date(), 'yyyyMMdd_HH.mm')}.json`,
+                `tmt_all_${format(new Date(), 'yyyyMMdd_HH.mm')}.json`,
               );
             }}
           >
@@ -147,7 +147,7 @@ const ResultsView: FC = () => {
             onClick={() => {
               downloadCsv(
                 allDataCsv(),
-                `flanker_all_${format(new Date(), 'yyyyMMdd_HH.mm')}.csv`,
+                `tmt_all_${format(new Date(), 'yyyyMMdd_HH.mm')}.csv`,
               );
             }}
           >
@@ -199,13 +199,13 @@ const ResultsView: FC = () => {
                   rawDataDownload={() =>
                     downloadJson(
                       rawData ? rawData.json() : '[]',
-                      `flanker_${data.creator?.name}_${data.updatedAt}_${format(new Date(), 'yyyyMMdd_HH.mm')}.json`,
+                      `tmt_${data.creator?.name}_${data.updatedAt}_${format(new Date(), 'yyyyMMdd_HH.mm')}.json`,
                     )
                   }
                   csvDataDownload={() =>
                     downloadCsv(
                       csvData,
-                      `flanker_${data.creator?.name}_${data.updatedAt}_${format(new Date(), 'yyyyMMdd_HH.mm')}.csv`,
+                      `tmt_${data.creator?.name}_${data.updatedAt}_${format(new Date(), 'yyyyMMdd_HH.mm')}.csv`,
                     )
                   }
                   onDelete={() => deleteExperimentResult(data.id)}

@@ -16,7 +16,7 @@
       }
     },
     "TRAIL_MAKING": {
-      "WELCOME_TITLE": "Trail Making Test (TMT)",
+      "WELCOME_TITLE": "Test de Flexibilité Mentale",
       "WELCOME_MESSAGE": "Bienvenue. Ce test nous aide à comprendre le fonctionnement de votre cerveau. Veuillez lire attentivement chaque instruction avant de commencer.",
       "START_BUTTON": "Démarrer le plein écran",
       "CONTINUE_BUTTON": "Continuer",
@@ -48,7 +48,7 @@
       "ERRORS_NON_SELF_CORRECTED": "Erreurs (non corrigées):"
     }
   },
-  "PROGRESS_BAR_MESSAGE": "Progression de l'Achèvement",
+  "PROGRESS_BAR_MESSAGE": "Progression",
   "SETTINGS": {
     "FLANKER_TITLE": "Paramètres de la Tâche Flanker",
     "CONGRUENT_PERCENTAGE": "Essais Congruents (%)",
