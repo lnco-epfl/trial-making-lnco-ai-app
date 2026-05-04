@@ -6,7 +6,11 @@ import { AllSettingsType } from '@/modules/context/SettingsContext';
 import { ExperimentState } from '../jspsych/experiment-state-class';
 import i18n from '../jspsych/i18n';
 import TrailMakingStimulusPlugin from '../trials/trail-making-stimulus-trial';
-import { PRACTICE1_FIELD, PRACTICE2_FIELD } from '../utils/constants';
+import {
+  PRACTICE1_FIELD,
+  PRACTICE2_FIELD,
+  STAGE_TIME_LIMITS_SEC,
+} from '../utils/constants';
 import { Timeline } from '../utils/types';
 
 const PREVIEW_WIDTH = 520;
@@ -26,14 +30,14 @@ const renderPracticePreview = (
       let badge = '';
 
       if (isStart) {
-        badge = `<text x="${x}" y="${y + 28}" class="preview-badge preview-start">${i18n.t('TRAIL_MAKING.START_LABEL')}</text>`;
+        badge = `<text x="${x}" y="${y + 40}" class="preview-badge preview-start">${i18n.t('TRAIL_MAKING.START_LABEL')}</text>`;
       } else if (isEnd) {
-        badge = `<text x="${x}" y="${y + 28}" class="preview-badge preview-end">${i18n.t('TRAIL_MAKING.END_LABEL')}</text>`;
+        badge = `<text x="${x}" y="${y + 40}" class="preview-badge preview-end">${i18n.t('TRAIL_MAKING.END_LABEL')}</text>`;
       }
 
       return `
-        <circle cx="${x}" cy="${y}" r="15" class="preview-circle"></circle>
-        <text x="${x}" y="${y + 5}" class="preview-label">${target.label}</text>
+        <circle cx="${x}" cy="${y}" r="25" class="preview-circle"></circle>
+        <text x="${x}" y="${y + 10}" class="preview-label">${target.label}</text>
         ${badge}
       `;
     })
@@ -79,8 +83,8 @@ export const buildPractice1 = (
     stimulus: `
       <div class="trail-making-stage-intro">
         <p style="white-space: pre-line;">${i18n.t('TRAIL_MAKING.PRACTICE1_INTRO')}</p>
-        ${renderPracticePreview(PRACTICE1_FIELD, '1', '8')}
         <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_BEGIN')}</p>
+        ${renderPracticePreview(PRACTICE1_FIELD, '1', '8')}
       </div>
     `,
     choices: [' '],
@@ -94,6 +98,7 @@ export const buildPractice1 = (
     provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
     screen_scale: screenScale,
+    time_limit: STAGE_TIME_LIMITS_SEC.practice1,
     on_finish: (trialData: {
       completed?: boolean;
       sequenceErrorEpisodes?: number;
@@ -142,6 +147,7 @@ export const buildPractice1 = (
         retry_attempt: true,
         circle_radius: state.getTrailMakingSettings().circleRadius,
         screen_scale: screenScale,
+        time_limit: STAGE_TIME_LIMITS_SEC.practice1,
         on_finish: () => {
           if (updateData && jsPsych) {
             updateData(jsPsych.data.get(), state.getAllSettings());
@@ -202,8 +208,8 @@ export const buildPractice2 = (
     stimulus: `
       <div class="trail-making-stage-intro">
         <p style="white-space: pre-line;">${i18n.t('TRAIL_MAKING.PRACTICE2_INTRO')}</p>
-        ${renderPracticePreview(PRACTICE2_FIELD, '1', 'D')}
         <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_BEGIN')}</p>
+        ${renderPracticePreview(PRACTICE2_FIELD, '1', 'D')}
       </div>
     `,
     choices: [' '],
@@ -217,6 +223,7 @@ export const buildPractice2 = (
     provide_feedback: false,
     circle_radius: state.getTrailMakingSettings().circleRadius,
     screen_scale: screenScale,
+    time_limit: STAGE_TIME_LIMITS_SEC.practice2,
     on_finish: (trialData: {
       completed?: boolean;
       sequenceErrorEpisodes?: number;
@@ -265,6 +272,7 @@ export const buildPractice2 = (
         retry_attempt: true,
         circle_radius: state.getTrailMakingSettings().circleRadius,
         screen_scale: screenScale,
+        time_limit: STAGE_TIME_LIMITS_SEC.practice2,
         on_finish: () => {
           if (updateData && jsPsych) {
             updateData(jsPsych.data.get(), state.getAllSettings());

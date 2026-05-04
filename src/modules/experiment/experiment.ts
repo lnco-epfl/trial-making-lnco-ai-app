@@ -108,7 +108,7 @@ export async function run({
 
     if (progressBarContainer) {
       const fullscreenButton = document.createElement('button');
-      fullscreenButton.textContent = 'Fullscreen';
+      fullscreenButton.textContent = i18n.t('TRAIL_MAKING.FULLSCREEN');
       fullscreenButton.className = 'jspsych-btn-progress-bar';
       fullscreenButton.style.marginLeft = '10px';
       fullscreenButton.style.cursor = 'pointer';
@@ -142,13 +142,13 @@ export async function run({
       const dropdown = document.createElement('select');
       dropdown.className = 'custom-dropdown';
       dropdown.innerHTML = `
-          <option value="small" ${state.getGeneralSettings().fontSize === 'small' ? 'selected' : ''}>Small</option>
-          <option value="normal" ${state.getGeneralSettings().fontSize === 'normal' ? 'selected' : ''}>Normal</option>
-          <option value="large" ${state.getGeneralSettings().fontSize === 'large' ? 'selected' : ''}>Large</option>
-          <option value="extra-large" ${state.getGeneralSettings().fontSize === 'extra-large' ? 'selected' : ''}>Extra Large</option>
+          <option value="small" ${state.getGeneralSettings().fontSize === 'small' ? 'selected' : ''}>${i18n.t('TRAIL_MAKING.FONT_SIZE_SMALL')}</option>
+          <option value="normal" ${state.getGeneralSettings().fontSize === 'normal' ? 'selected' : ''}>${i18n.t('TRAIL_MAKING.FONT_SIZE_NORMAL')}</option>
+          <option value="large" ${state.getGeneralSettings().fontSize === 'large' ? 'selected' : ''}>${i18n.t('TRAIL_MAKING.FONT_SIZE_LARGE')}</option>
+          <option value="extra-large" ${state.getGeneralSettings().fontSize === 'extra-large' ? 'selected' : ''}>${i18n.t('TRAIL_MAKING.FONT_SIZE_EXTRA_LARGE')}</option>
         `;
       const fontSizeTitle = document.createElement('span');
-      fontSizeTitle.innerHTML = 'Font Size:';
+      fontSizeTitle.innerHTML = `${i18n.t('TRAIL_MAKING.FONT_SIZE_TITLE')}:`;
       fontSizeTitle.style.marginLeft = '10px';
       progressBar.appendChild(fontSizeTitle);
       progressBar.appendChild(dropdown);
@@ -167,8 +167,7 @@ export async function run({
 
   const jsPsych = initJsPsych({
     show_progress_bar: true,
-    auto_update_progress_bar: false,
-    progress_bar_message: '',
+    message_progress_bar: i18n.t('TRAIL_MAKING.PROGRESS_BAR_MESSAGE'),
     display_element: 'jspsych-display-element',
   });
 

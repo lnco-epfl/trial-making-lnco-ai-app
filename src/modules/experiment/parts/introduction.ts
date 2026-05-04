@@ -10,7 +10,7 @@ import { Timeline, Trial } from '../utils/types';
  */
 const experimentBeginTrial = (): Trial => ({
   type: FullscreenPlugin,
-  choices: [i18n.t('TRAIL_MAKING.START_BUTTON')],
+  button_label: i18n.t('TRAIL_MAKING.START_BUTTON'),
   message: `
     <div class="trail-making-intro">
       <h1>${i18n.t('TRAIL_MAKING.WELCOME_TITLE')}</h1>

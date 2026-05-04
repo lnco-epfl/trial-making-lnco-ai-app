@@ -396,33 +396,84 @@ body {
 .preview-circle {
   fill: #ffffff;
   stroke: #4a90e2;
-  stroke-width: 2;
+  stroke-width: 1;
 }
 
 .preview-label {
   fill: #1f2937;
-  font-size: 14px;
+  font-size: 30px;
   font-weight: 600;
   text-anchor: middle;
   user-select: none;
 }
 
 .preview-badge {
-  font-size: 10px;
+  font-size: 15px;
   text-anchor: middle;
-  font-weight: 700;
+  font-weight: 600;
   user-select: none;
 }
 
 .preview-start {
-  fill: #1f7a1f;
+  fill: #000;
 }
 
 .preview-end {
-  fill: #c62828;
+  fill: #000;
 }
 
 .important {
   font-weight: bold;
   color: #ff9800;
+}
+
+/* Task instruction page — two-column layout */
+.task-instruction-page {
+  width: min(96vw, 1100px);
+  display: flex;
+  flex-direction: row;
+  gap: 28px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  padding: clamp(12px, 2vw, 24px);
+  box-sizing: border-box;
+}
+
+.task-instruction-left {
+  flex: 2;
+  min-width: 0;
+  text-align: left;
+  line-height: 1.6;
+}
+
+.task-instruction-left p {
+  margin: 0 0 0.85rem;
+}
+
+.task-instruction-right {
+  flex: 1;
+  width: clamp(160px, 20vw, 240px);
+}
+
+.task-display {
+  border: 1px solid #d9dee8;
+  border-radius: 10px;
+  background: #f8fafd;
+  pointer-events: none;
+  width: 100%;
+}
+
+.task-display-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.task-display-label {
+  fill: #1f2937;
+  font-size: 11px;
+  font-weight: 800;
+  text-anchor: middle;
+  user-select: none;
 }
