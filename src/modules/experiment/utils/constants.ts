@@ -43,6 +43,13 @@ export const TIMING = {
   COUNTDOWN_INTERVAL: 1000, // Interval for break countdown timer (1 second)
 } as const;
 
+export const STAGE_TIME_LIMITS_SEC = {
+  practice1: 40,
+  task1: 120,
+  practice2: 100,
+  task2: 320,
+} as const;
+
 export const PRACTICE1_FIELD: FieldDefinition = {
   type: 'practice1',
   size: [2100, 1200],
@@ -148,12 +155,12 @@ export const TASK1_FIELD: FieldDefinition = {
     },
     {
       label: '2',
-      x: 45.89,
+      x: 46.89,
       y: 69.14,
     },
     {
       label: '3',
-      x: 77.02,
+      x: 76.02,
       y: 75.23,
     },
     {
@@ -199,7 +206,7 @@ export const TASK1_FIELD: FieldDefinition = {
     {
       label: '12',
       x: 9.52,
-      y: 88,
+      y: 91,
     },
     {
       label: '13',
@@ -244,17 +251,17 @@ export const TASK1_FIELD: FieldDefinition = {
     {
       label: '21',
       x: 91.53,
-      y: 13.14,
+      y: 8.14,
     },
     {
       label: '22',
-      x: 90.73,
+      x: 91.73,
       y: 39.66,
     },
     {
       label: '23',
-      x: 90.81,
-      y: 90.17,
+      x: 92.81,
+      y: 92.17,
     },
     {
       label: '24',
@@ -385,7 +392,7 @@ export const TASK2_FIELD: FieldDefinition = {
     },
     {
       label: '12',
-      x: 76.61,
+      x: 74.61,
       y: 25.6,
     },
     {
@@ -395,8 +402,8 @@ export const TASK2_FIELD: FieldDefinition = {
     },
     {
       label: '13',
-      x: 70.65,
-      y: 42.14,
+      x: 68.65,
+      y: 40.14,
     },
   ],
 };

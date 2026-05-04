@@ -17,7 +17,7 @@
     },
     "PROGRESS_BAR_MESSAGE": "Completion Progress",
     "TRAIL_MAKING": {
-      "WELCOME_TITLE": "Trail Making Test (TMT)",
+      "WELCOME_TITLE": "Mental Flexibility Test",
       "WELCOME_MESSAGE": "Welcome. This test helps us understand how your brain works. Please read each instruction carefully before you begin.",
       "START_BUTTON": "Start Fullscreen",
       "CONTINUE_BUTTON": "Continue",
@@ -43,6 +43,9 @@
       "PRACTICE_TRIAL_SUCCESS": "Trial completed successfully.",
       "PRACTICE_TRIAL_ERROR": "There is a mistake in your sequence.",
       "PRACTICE_TRIAL_REVIEW_INSTRUCTIONS": "Please review the instructions.",
+      "TIME_UP_MESSAGE": "Time is up! Please click to continue.",
+      "TASK1_TIMEOUT_MESSAGE": "Time is up. Thank you — we will now move on to the second part.",
+      "TASK2_TIMEOUT_MESSAGE": "Time is up. Thank you, the test is now complete.",
       "TIME_TAKEN": "Time taken:",
       "SECONDS": "seconds",
       "ERRORS_SELF_CORRECTED": "Errors (self-corrected):",
