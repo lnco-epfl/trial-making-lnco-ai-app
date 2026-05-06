@@ -10,6 +10,7 @@ import PreloadPlugin from '@jspsych/plugin-preload';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Marked } from '@ts-stack/markdown';
 import { DataCollection, JsPsych, initJsPsych } from 'jspsych';
+import { AudioNarration } from 'jspsych-audio-narration';
 
 import { ExperimentResult } from '../config/appResults';
 import { AllSettingsType, NextStepSettings } from '../context/SettingsContext';
@@ -44,6 +45,7 @@ const getEndPage = ({
 export async function run({
   assetPaths,
   input,
+  narration,
   updateData,
 }: {
   assetPaths: { images: string[]; audio: string[]; video: string[] };
@@ -53,6 +55,7 @@ export async function run({
     participantName: string;
     screenScale?: number;
   };
+  narration: AudioNarration;
   updateData: (data: DataCollection, settings: AllSettingsType) => void;
 }): Promise<JsPsych> {
   // Apply language setting before any timeline content is built
@@ -206,6 +209,7 @@ export async function run({
     timeline.push({
       timeline: buildPractice1(
         state,
+        narration,
         updateDataWithSettings,
         jsPsych,
         input.screenScale,
@@ -223,6 +227,7 @@ export async function run({
         state,
         updateDataWithSettings,
         jsPsych,
+        narration,
         input.screenScale,
       ),
       on_timeline_start() {
@@ -236,6 +241,7 @@ export async function run({
     timeline.push({
       timeline: buildPractice2(
         state,
+        narration,
         updateDataWithSettings,
         jsPsych,
         input.screenScale,
@@ -253,6 +259,7 @@ export async function run({
         state,
         updateDataWithSettings,
         jsPsych,
+        narration,
         input.screenScale,
       ),
       on_timeline_start() {
