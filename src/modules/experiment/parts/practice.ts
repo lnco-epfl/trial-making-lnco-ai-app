@@ -1,5 +1,6 @@
 import htmlKeyboardResponse from '@jspsych/plugin-html-keyboard-response';
 import type { DataCollection, JsPsych } from 'jspsych';
+import { AudioNarration } from 'jspsych-audio-narration';
 
 import { AllSettingsType } from '@/modules/context/SettingsContext';
 
@@ -64,6 +65,7 @@ const renderPracticePreview = (
  */
 export const buildPractice1 = (
   state: ExperimentState,
+  narration: AudioNarration,
   updateData?: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych?: JsPsych,
   screenScale?: number,
@@ -88,6 +90,12 @@ export const buildPractice1 = (
       </div>
     `,
     choices: [' '],
+    on_start() {
+      narration.play('assets/audio/tst_practice_instructions1.mp3');
+    },
+    on_finish() {
+      narration.stop();
+    },
   };
 
   // --- 1st attempt stimulus ---
@@ -138,6 +146,12 @@ export const buildPractice1 = (
           </div>
         `,
         choices: [' '],
+        on_start() {
+          narration.play('assets/audio/tst_practice_instructions1.mp3');
+        },
+        on_finish() {
+          narration.stop();
+        },
       },
       {
         type: TrailMakingStimulusPlugin,
@@ -168,6 +182,12 @@ export const buildPractice1 = (
       </div>
     `,
     choices: [' '],
+    on_start() {
+      narration.play('assets/audio/tst_practice_complete1.mp3');
+    },
+    on_finish() {
+      narration.stop();
+    },
   };
 
   timeline.push(introScreen);
@@ -189,6 +209,7 @@ export const buildPractice1 = (
  */
 export const buildPractice2 = (
   state: ExperimentState,
+  narration: AudioNarration,
   updateData?: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych?: JsPsych,
   screenScale?: number,
@@ -213,6 +234,12 @@ export const buildPractice2 = (
       </div>
     `,
     choices: [' '],
+    on_start() {
+      narration.play('assets/audio/tst_practice_instructions2.mp3');
+    },
+    on_finish() {
+      narration.stop();
+    },
   };
 
   // --- 1st attempt stimulus ---
@@ -293,6 +320,12 @@ export const buildPractice2 = (
       </div>
     `,
     choices: [' '],
+    on_start() {
+      narration.play('assets/audio/tst_practice_complete1.mp3');
+    },
+    on_finish() {
+      narration.stop();
+    },
   };
 
   timeline.push(introScreen);

@@ -5,6 +5,7 @@ import { Typography } from '@mui/material';
 import { useLocalContext } from '@graasp/apps-query-client';
 
 import { DataCollection, JsPsych } from 'jspsych';
+import { AudioNarration } from 'jspsych-audio-narration';
 
 import { hooks } from '@/config/queryClient';
 
@@ -13,7 +14,11 @@ import useExperimentResults from '../context/ExperimentContext';
 import { AllSettingsType, useSettings } from '../context/SettingsContext';
 import { run } from '../experiment/experiment';
 
-export const ExperimentLoader: FC = () => {
+interface ExperimentLoaderProps {
+  narration: AudioNarration;
+}
+
+export const ExperimentLoader: FC<ExperimentLoaderProps> = ({ narration }) => {
   const settings = useSettings();
   const localContext = useLocalContext();
   const { memberId } = localContext;
@@ -82,6 +87,7 @@ export const ExperimentLoader: FC = () => {
             participantName,
             screenScale: hostScale,
           },
+          narration,
           // eslint-disable-next-line @typescript-eslint/no-shadow
           updateData: (data, settings) => updateData(data, settings),
         });
@@ -104,6 +110,7 @@ export const ExperimentLoader: FC = () => {
             participantName,
             screenScale: hostScale,
           },
+          narration,
           // eslint-disable-next-line @typescript-eslint/no-shadow
           updateData: (data, settings) => updateData(data, settings),
         });

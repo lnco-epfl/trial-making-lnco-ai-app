@@ -1,5 +1,6 @@
 import htmlKeyboardResponse from '@jspsych/plugin-html-keyboard-response';
 import type { DataCollection, JsPsych } from 'jspsych';
+import { AudioNarration } from 'jspsych-audio-narration';
 
 import { AllSettingsType } from '@/modules/context/SettingsContext';
 
@@ -60,6 +61,7 @@ export const buildTask1 = (
   state: ExperimentState,
   updateData: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych: JsPsych,
+  narration: AudioNarration,
   screenScale?: number,
 ): Timeline => {
   const timeline: Timeline = [];
@@ -84,6 +86,12 @@ export const buildTask1 = (
       </div>
     `,
     choices: [' '],
+    on_start() {
+      narration.play('assets/audio/tst_main_instructions1.mp3');
+    },
+    on_finish() {
+      narration.stop();
+    },
   });
 
   // Stimulus trial
@@ -118,6 +126,19 @@ export const buildTask1 = (
       `;
     },
     choices: [' '],
+    on_start() {
+      const lastTrial = jsPsych.data.get().last(1).values()[0] as
+        | { timedOut?: boolean }
+        | undefined;
+      if (lastTrial?.timedOut) {
+        narration.play('assets/audio/tst_main_timeout1.mp3');
+      } else {
+        narration.play('assets/audio/tst_main_complete1.mp3');
+      }
+    },
+    on_finish() {
+      narration.stop();
+    },
   });
 
   return timeline;
@@ -130,6 +151,7 @@ export const buildTask2 = (
   state: ExperimentState,
   updateData: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych: JsPsych,
+  narration: AudioNarration,
   screenScale?: number,
 ): Timeline => {
   const timeline: Timeline = [];
@@ -154,6 +176,12 @@ export const buildTask2 = (
       </div>
     `,
     choices: [' '],
+    on_start() {
+      narration.play('assets/audio/tst_main_instructions2.mp3');
+    },
+    on_finish() {
+      narration.stop();
+    },
   });
 
   // Stimulus trial
@@ -188,6 +216,19 @@ export const buildTask2 = (
       `;
     },
     choices: [' '],
+    on_start() {
+      const lastTrial = jsPsych.data.get().last(1).values()[0] as
+        | { timedOut?: boolean }
+        | undefined;
+      if (lastTrial?.timedOut) {
+        narration.play('assets/audio/tst_main_timeout2.mp3');
+      } else {
+        narration.play('assets/audio/tst_main_complete2.mp3');
+      }
+    },
+    on_finish() {
+      narration.stop();
+    },
   });
 
   return timeline;
