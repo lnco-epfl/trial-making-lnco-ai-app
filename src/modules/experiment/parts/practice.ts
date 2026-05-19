@@ -85,8 +85,8 @@ export const buildPractice1 = (
     stimulus: `
       <div class="trail-making-stage-intro">
         <p style="white-space: pre-line;">${i18n.t('TRAIL_MAKING.PRACTICE1_INTRO')}</p>
-        ${renderPracticePreview(PRACTICE1_FIELD, '1', '8')}
         <p class="continue-prompt">${i18n.t('TRAIL_MAKING.PRESS_TO_BEGIN')}</p>
+        ${renderPracticePreview(PRACTICE1_FIELD, '1', '8')}
       </div>
     `,
     choices: [' '],
