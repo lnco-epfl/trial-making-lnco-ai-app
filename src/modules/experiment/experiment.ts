@@ -54,6 +54,8 @@ export async function run({
     results: ExperimentResult;
     participantName: string;
     screenScale?: number;
+    participantId?: string;
+    participantCode?: string;
   };
   narration: AudioNarration;
   updateData: (data: DataCollection, settings: AllSettingsType) => void;
@@ -173,6 +175,17 @@ export async function run({
     message_progress_bar: i18n.t('TRAIL_MAKING.PROGRESS_BAR_MESSAGE'),
     display_element: 'jspsych-display-element',
   });
+
+  const participantProperties: Record<string, string> = {};
+  if (input.participantId !== undefined) {
+    participantProperties.participantId = input.participantId;
+  }
+  if (input.participantCode !== undefined) {
+    participantProperties.participantCode = input.participantCode;
+  }
+  if (Object.keys(participantProperties).length > 0) {
+    jsPsych.data.addProperties(participantProperties);
+  }
 
   const blockUnload = (event: BeforeUnloadEvent): string => {
     event.preventDefault();

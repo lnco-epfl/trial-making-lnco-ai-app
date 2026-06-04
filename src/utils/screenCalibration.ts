@@ -3,6 +3,8 @@ import { GeneralSettingsType } from '@/modules/context/SettingsContext';
 export type ScreenCalibration = {
   fontSize?: GeneralSettingsType['fontSize'];
   scale?: number;
+  participantId?: string;
+  participantCode?: string;
 };
 
 const FONT_SIZES: GeneralSettingsType['fontSize'][] = [
@@ -24,6 +26,9 @@ const isValidScale = (value: unknown): value is number =>
   value > 0.5 &&
   value < 3;
 
+const isValidParticipantField = (value: unknown): value is string =>
+  typeof value === 'string' && value.length > 0;
+
 export const parseScreenCalibration = (
   value: unknown,
 ): ScreenCalibration | undefined => {
@@ -34,6 +39,8 @@ export const parseScreenCalibration = (
   const calibration = value as {
     fontSize?: unknown;
     scale?: unknown;
+    participantId?: unknown;
+    participantCode?: unknown;
   };
 
   const parsed: ScreenCalibration = {};
@@ -46,7 +53,20 @@ export const parseScreenCalibration = (
     parsed.scale = calibration.scale;
   }
 
-  if (parsed.fontSize === undefined && parsed.scale === undefined) {
+  if (isValidParticipantField(calibration.participantId)) {
+    parsed.participantId = calibration.participantId;
+  }
+
+  if (isValidParticipantField(calibration.participantCode)) {
+    parsed.participantCode = calibration.participantCode;
+  }
+
+  if (
+    parsed.fontSize === undefined &&
+    parsed.scale === undefined &&
+    parsed.participantId === undefined &&
+    parsed.participantCode === undefined
+  ) {
     return undefined;
   }
 
