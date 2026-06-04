@@ -2,12 +2,12 @@ import { FC, useEffect, useRef, useState } from 'react';
 
 import { Typography } from '@mui/material';
 
-import { useLocalContext } from '@graasp/apps-query-client';
-
+import { useLocalContext } from '@lnco-ai/apps-query-client';
 import { DataCollection, JsPsych } from 'jspsych';
 import { AudioNarration } from 'jspsych-audio-narration';
 
 import { hooks } from '@/config/queryClient';
+import { parseScreenCalibration } from '@/utils/screenCalibration';
 
 import { TrialData } from '../config/appResults';
 import useExperimentResults from '../context/ExperimentContext';
@@ -22,11 +22,12 @@ export const ExperimentLoader: FC<ExperimentLoaderProps> = ({ narration }) => {
   const settings = useSettings();
   const localContext = useLocalContext();
   const { memberId } = localContext;
-  const hostScaleRaw = localContext.screenCalibration?.scale;
-  const hostScale =
-    typeof hostScaleRaw === 'number' && Number.isFinite(hostScaleRaw)
-      ? hostScaleRaw
-      : 1;
+  const screenCalibration = parseScreenCalibration(
+    (localContext as unknown as { screenCalibration?: unknown })
+      .screenCalibration,
+  );
+  const hostScale = screenCalibration?.scale ?? 1;
+  const { participantId, participantCode } = screenCalibration ?? {};
   const { data: appContextData } = hooks.useAppContext();
   let participantName = '';
 
@@ -86,6 +87,8 @@ export const ExperimentLoader: FC<ExperimentLoaderProps> = ({ narration }) => {
             results: experimentResultsAppData,
             participantName,
             screenScale: hostScale,
+            participantId,
+            participantCode,
           },
           narration,
           // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -109,6 +112,8 @@ export const ExperimentLoader: FC<ExperimentLoaderProps> = ({ narration }) => {
             results: experimentResultsAppData,
             participantName,
             screenScale: hostScale,
+            participantId,
+            participantCode,
           },
           narration,
           // eslint-disable-next-line @typescript-eslint/no-shadow
