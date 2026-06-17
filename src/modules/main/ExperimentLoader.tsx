@@ -3,6 +3,7 @@ import { FC, useEffect, useRef, useState } from 'react';
 import { Typography } from '@mui/material';
 
 import { useLocalContext } from '@lnco-ai/apps-query-client';
+import { Marked } from '@ts-stack/markdown';
 import { DataCollection, JsPsych } from 'jspsych';
 import { AudioNarration } from 'jspsych-audio-narration';
 
@@ -13,6 +14,7 @@ import { TrialData } from '../config/appResults';
 import useExperimentResults from '../context/ExperimentContext';
 import { AllSettingsType, useSettings } from '../context/SettingsContext';
 import { run } from '../experiment/experiment';
+import { resolveLink } from '../experiment/utils/utils';
 
 interface ExperimentLoaderProps {
   narration: AudioNarration;
@@ -45,9 +47,19 @@ export const ExperimentLoader: FC<ExperimentLoaderProps> = ({ narration }) => {
     trials: TrialData[],
     // eslint-disable-next-line @typescript-eslint/no-shadow
     _settings: AllSettingsType,
-  ): boolean =>
-    // For N-back, check if there's any completed data
-    trials.length > 0 && trials.some((trial) => trial.correct !== undefined);
+  ): boolean => {
+    const { enableTask1, enableTask2 } = _settings.trailMakingSettings;
+    // Determine which is the last enabled main task
+    let lastStage: 'task1' | 'task2' | null = null;
+    if (enableTask2) lastStage = 'task2';
+    else if (enableTask1) lastStage = 'task1';
+    if (!lastStage) return false;
+    return trials.some(
+      (trial) =>
+        trial.stage === lastStage && (trial.completed || trial.timedOut),
+    );
+  };
+
   const updateData = (
     rawData: DataCollection,
     // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -97,14 +109,43 @@ export const ExperimentLoader: FC<ExperimentLoaderProps> = ({ narration }) => {
       } else if (
         isCompleted(experimentResultsAppData.rawData.trials, settings)
       ) {
-        setCompletedContent(
-          <Typography variant="h5" style={{ backgroundColor: 'white' }}>
-            You have previously completed this experiment, please reach out to
-            the experimenter if this is not correct.
-          </Typography>,
-        );
+        const { nextStepSettings } = settings;
+        if (nextStepSettings.linkToNextPage) {
+          const resolvedLink = resolveLink(
+            nextStepSettings.link,
+            participantName,
+          );
+          setCompletedContent(
+            <div
+              className="sd-html"
+              style={{ backgroundColor: 'white', padding: '24px' }}
+            >
+              <h3>{nextStepSettings.title}</h3>
+              <p
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{
+                  __html: Marked.parse(nextStepSettings.description),
+                }}
+              />
+              <a
+                className="link-to-experiment"
+                target="_parent"
+                href={resolvedLink}
+              >
+                {nextStepSettings.linkText}
+              </a>
+            </div>,
+          );
+        } else {
+          setCompletedContent(
+            <Typography variant="h5" style={{ backgroundColor: 'white' }}>
+              You have previously completed this experiment, please reach out to
+              the experimenter if this is not correct.
+            </Typography>,
+          );
+        }
       } else {
-        // Allow restart for N-back
+        // Restart: last enabled task not yet completed
         jsPsychRef.current = run({
           assetPaths: assetPath,
           input: {

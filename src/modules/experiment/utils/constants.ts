@@ -44,9 +44,9 @@ export const TIMING = {
 } as const;
 
 export const STAGE_TIME_LIMITS_SEC = {
-  practice1: 40,
+  practice1: 60,
   task1: 120,
-  practice2: 100,
+  practice2: 120,
   task2: 320,
 } as const;
 
