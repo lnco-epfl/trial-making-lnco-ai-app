@@ -14,7 +14,15 @@ import { TrialData } from '../config/appResults';
 import useExperimentResults from '../context/ExperimentContext';
 import { AllSettingsType, useSettings } from '../context/SettingsContext';
 import { run } from '../experiment/experiment';
+import { NARRATION_BASE_NAMES } from '../experiment/jspsych/i18n';
 import { resolveLink } from '../experiment/utils/utils';
+
+// Preload runs before the settings-driven language is applied, so both
+// language variants of every narration clip must be fetched up front.
+const NARRATION_AUDIO_PATHS = NARRATION_BASE_NAMES.flatMap((baseName) => [
+  `assets/audio/${baseName}-en.mp3`,
+  `assets/audio/${baseName}-fr.mp3`,
+]);
 
 interface ExperimentLoaderProps {
   narration: AudioNarration;
@@ -74,7 +82,7 @@ export const ExperimentLoader: FC<ExperimentLoaderProps> = ({ narration }) => {
 
   const assetPath = {
     images: [],
-    audio: [],
+    audio: NARRATION_AUDIO_PATHS,
     video: [],
     misc: [],
   };

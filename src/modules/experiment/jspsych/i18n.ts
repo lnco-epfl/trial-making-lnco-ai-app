@@ -36,4 +36,28 @@ i18n.init({
   initImmediate: false, // Initialize synchronously
 });
 
+// Base names (without language suffix or extension) for every narration
+// clip used across the experiment. This is the single source of truth:
+// on-disk files are expected at `assets/audio/${baseName}-${lang}.mp3`.
+export const NARRATION_BASE_NAMES = [
+  'tst_practice_instructions1',
+  'tst_practice_complete1',
+  'tst_practice_instructions2',
+  'tst_main_instructions1',
+  'tst_main_timeout1',
+  'tst_main_complete1',
+  'tst_main_instructions2',
+  'tst_main_timeout2',
+  'tst_main_complete2',
+] as const;
+
+export type NarrationBaseName = (typeof NARRATION_BASE_NAMES)[number];
+
+/**
+ * @function getNarrationSrc
+ * @description Builds the narration clip path for the currently active i18n language.
+ */
+export const getNarrationSrc = (baseName: NarrationBaseName): string =>
+  `assets/audio/${baseName}-${i18n.language}.mp3`;
+
 export default i18n;

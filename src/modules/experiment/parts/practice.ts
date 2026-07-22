@@ -4,7 +4,7 @@ import type { DataCollection, JsPsych } from 'jspsych';
 import { AllSettingsType } from '@/modules/context/SettingsContext';
 
 import { ExperimentState } from '../jspsych/experiment-state-class';
-import i18n from '../jspsych/i18n';
+import i18n, { getNarrationSrc } from '../jspsych/i18n';
 import TrailMakingStimulusPlugin from '../trials/trail-making-stimulus-trial';
 import {
   PRACTICE1_FIELD,
@@ -90,7 +90,7 @@ export const buildPractice1 = (
     `,
     choices: [' '],
     on_start() {
-      narration.play('assets/audio/tst_practice_instructions1.mp3');
+      narration.play(getNarrationSrc('tst_practice_instructions1'));
     },
     on_finish() {
       narration.stop();
@@ -146,7 +146,7 @@ export const buildPractice1 = (
         `,
         choices: [' '],
         on_start() {
-          narration.play('assets/audio/tst_practice_instructions1.mp3');
+          narration.play(getNarrationSrc('tst_practice_instructions1'));
         },
         on_finish() {
           narration.stop();
@@ -182,7 +182,7 @@ export const buildPractice1 = (
     `,
     choices: [' '],
     on_start() {
-      narration.play('assets/audio/tst_practice_complete1.mp3');
+      narration.play(getNarrationSrc('tst_practice_complete1'));
     },
     on_finish() {
       narration.stop();
@@ -234,7 +234,7 @@ export const buildPractice2 = (
     `,
     choices: [' '],
     on_start() {
-      narration.play('assets/audio/tst_practice_instructions2.mp3');
+      narration.play(getNarrationSrc('tst_practice_instructions2'));
     },
     on_finish() {
       narration.stop();
@@ -320,7 +320,7 @@ export const buildPractice2 = (
     `,
     choices: [' '],
     on_start() {
-      narration.play('assets/audio/tst_practice_complete1.mp3');
+      narration.play(getNarrationSrc('tst_practice_complete1'));
     },
     on_finish() {
       narration.stop();

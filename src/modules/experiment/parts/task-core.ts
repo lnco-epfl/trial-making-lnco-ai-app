@@ -4,7 +4,7 @@ import type { DataCollection, JsPsych } from 'jspsych';
 import { AllSettingsType } from '@/modules/context/SettingsContext';
 
 import { ExperimentState } from '../jspsych/experiment-state-class';
-import i18n from '../jspsych/i18n';
+import i18n, { getNarrationSrc } from '../jspsych/i18n';
 import TrailMakingStimulusPlugin from '../trials/trail-making-stimulus-trial';
 import {
   STAGE_TIME_LIMITS_SEC,
@@ -86,7 +86,7 @@ export const buildTask1 = (
     `,
     choices: [' '],
     on_start() {
-      narration.play('assets/audio/tst_main_instructions1.mp3');
+      narration.play(getNarrationSrc('tst_main_instructions1'));
     },
     on_finish() {
       narration.stop();
@@ -130,9 +130,9 @@ export const buildTask1 = (
         | { timedOut?: boolean }
         | undefined;
       if (lastTrial?.timedOut) {
-        narration.play('assets/audio/tst_main_timeout1.mp3');
+        narration.play(getNarrationSrc('tst_main_timeout1'));
       } else {
-        narration.play('assets/audio/tst_main_complete1.mp3');
+        narration.play(getNarrationSrc('tst_main_complete1'));
       }
     },
     on_finish() {
@@ -176,7 +176,7 @@ export const buildTask2 = (
     `,
     choices: [' '],
     on_start() {
-      narration.play('assets/audio/tst_main_instructions2.mp3');
+      narration.play(getNarrationSrc('tst_main_instructions2'));
     },
     on_finish() {
       narration.stop();
@@ -220,9 +220,9 @@ export const buildTask2 = (
         | { timedOut?: boolean }
         | undefined;
       if (lastTrial?.timedOut) {
-        narration.play('assets/audio/tst_main_timeout2.mp3');
+        narration.play(getNarrationSrc('tst_main_timeout2'));
       } else {
-        narration.play('assets/audio/tst_main_complete2.mp3');
+        narration.play(getNarrationSrc('tst_main_complete2'));
       }
     },
     on_finish() {
