@@ -14,3 +14,10 @@ export type FieldDefinition = {
     y: number;
   }[];
 };
+
+// Minimal shape stage builders need — lets experiment.ts swap in a no-op
+// stub when narration is disabled without builders knowing about settings.
+export type NarrationPlayer = {
+  play: (src: string) => void;
+  stop: () => void;
+};

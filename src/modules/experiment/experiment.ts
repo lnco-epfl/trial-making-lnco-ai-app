@@ -10,7 +10,6 @@ import PreloadPlugin from '@jspsych/plugin-preload';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Marked } from '@ts-stack/markdown';
 import { DataCollection, JsPsych, initJsPsych } from 'jspsych';
-import { AudioNarration } from 'jspsych-audio-narration';
 
 import { ExperimentResult } from '../config/appResults';
 import { AllSettingsType, NextStepSettings } from '../context/SettingsContext';
@@ -20,8 +19,15 @@ import { buildIntroduction } from './parts/introduction';
 import { buildPractice1, buildPractice2 } from './parts/practice';
 import { buildTask1, buildTask2 } from './parts/task-core';
 import './styles/main.scss';
-import { Timeline, Trial } from './utils/types';
+import { NarrationPlayer, Timeline, Trial } from './utils/types';
 import { resolveLink } from './utils/utils';
+
+// No-op stand-in used when narration is disabled in settings, so stage
+// builders can call play()/stop() unconditionally without knowing why.
+const silentNarration: NarrationPlayer = {
+  play: () => {},
+  stop: () => {},
+};
 
 /**
  * End page with optional link to next experiment
@@ -57,7 +63,7 @@ export async function run({
     participantId?: string;
     participantCode?: string;
   };
-  narration: AudioNarration;
+  narration: NarrationPlayer;
   updateData: (data: DataCollection, settings: AllSettingsType) => void;
 }): Promise<JsPsych> {
   // Apply language setting before any timeline content is built
@@ -65,6 +71,13 @@ export async function run({
 
   // Initialize experiment state
   const state = new ExperimentState(input.settings);
+
+  // Swap in a no-op player when narration is disabled, computed once so
+  // every stage builder below can stay unaware of the setting.
+  const effectiveNarration: NarrationPlayer = state.getGeneralSettings()
+    .enableNarration
+    ? narration
+    : silentNarration;
 
   // Setup photo-diode if enabled
   if (state.getPhotoDiodeSettings().usePhotoDiode !== 'off') {
@@ -222,7 +235,7 @@ export async function run({
     timeline.push({
       timeline: buildPractice1(
         state,
-        narration,
+        effectiveNarration,
         updateDataWithSettings,
         jsPsych,
         input.screenScale,
@@ -240,7 +253,7 @@ export async function run({
         state,
         updateDataWithSettings,
         jsPsych,
-        narration,
+        effectiveNarration,
         input.screenScale,
       ),
       on_timeline_start() {
@@ -254,7 +267,7 @@ export async function run({
     timeline.push({
       timeline: buildPractice2(
         state,
-        narration,
+        effectiveNarration,
         updateDataWithSettings,
         jsPsych,
         input.screenScale,
@@ -272,7 +285,7 @@ export async function run({
         state,
         updateDataWithSettings,
         jsPsych,
-        narration,
+        effectiveNarration,
         input.screenScale,
       ),
       on_timeline_start() {

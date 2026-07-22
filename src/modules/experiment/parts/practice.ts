@@ -1,6 +1,5 @@
 import htmlKeyboardResponse from '@jspsych/plugin-html-keyboard-response';
 import type { DataCollection, JsPsych } from 'jspsych';
-import { AudioNarration } from 'jspsych-audio-narration';
 
 import { AllSettingsType } from '@/modules/context/SettingsContext';
 
@@ -12,7 +11,7 @@ import {
   PRACTICE2_FIELD,
   STAGE_TIME_LIMITS_SEC,
 } from '../utils/constants';
-import { Timeline } from '../utils/types';
+import { NarrationPlayer, Timeline } from '../utils/types';
 
 const PREVIEW_WIDTH = 520;
 const PREVIEW_HEIGHT = 300;
@@ -65,7 +64,7 @@ const renderPracticePreview = (
  */
 export const buildPractice1 = (
   state: ExperimentState,
-  narration: AudioNarration,
+  narration: NarrationPlayer,
   updateData?: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych?: JsPsych,
   screenScale?: number,
@@ -209,7 +208,7 @@ export const buildPractice1 = (
  */
 export const buildPractice2 = (
   state: ExperimentState,
-  narration: AudioNarration,
+  narration: NarrationPlayer,
   updateData?: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych?: JsPsych,
   screenScale?: number,
