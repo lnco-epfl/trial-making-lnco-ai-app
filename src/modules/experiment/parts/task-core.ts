@@ -1,6 +1,5 @@
 import htmlKeyboardResponse from '@jspsych/plugin-html-keyboard-response';
 import type { DataCollection, JsPsych } from 'jspsych';
-import { AudioNarration } from 'jspsych-audio-narration';
 
 import { AllSettingsType } from '@/modules/context/SettingsContext';
 
@@ -12,7 +11,7 @@ import {
   TASK1_FIELD,
   TASK2_FIELD,
 } from '../utils/constants';
-import { FieldDefinition, Timeline } from '../utils/types';
+import { FieldDefinition, NarrationPlayer, Timeline } from '../utils/types';
 
 const TASK_DISPLAY_W = 200;
 const TASK_DISPLAY_H = 283; // preserves 2480:3500 ≈ 1:1.41 aspect ratio
@@ -61,7 +60,7 @@ export const buildTask1 = (
   state: ExperimentState,
   updateData: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych: JsPsych,
-  narration: AudioNarration,
+  narration: NarrationPlayer,
   screenScale?: number,
 ): Timeline => {
   const timeline: Timeline = [];
@@ -151,7 +150,7 @@ export const buildTask2 = (
   state: ExperimentState,
   updateData: (data: DataCollection, settings: AllSettingsType) => void,
   jsPsych: JsPsych,
-  narration: AudioNarration,
+  narration: NarrationPlayer,
   screenScale?: number,
 ): Timeline => {
   const timeline: Timeline = [];

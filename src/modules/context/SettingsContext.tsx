@@ -8,6 +8,7 @@ export type GeneralSettingsType = {
   skipInstructions: boolean;
   skipPractice: boolean;
   language: 'en' | 'fr';
+  enableNarration: boolean;
 };
 
 export type CirclePosition = {
@@ -79,6 +80,7 @@ const defaultSettingsValues: AllSettingsType = {
     skipInstructions: false,
     skipPractice: false,
     language: 'en',
+    enableNarration: true,
   },
   trailMakingSettings: {
     enablePractice1: true,
